@@ -156,6 +156,7 @@ export type Database = {
         Row: {
           id: string;
           post_id: string;
+          user_id: string;
           content: string;
           created_at: string;
         };
@@ -174,7 +175,6 @@ export type Database = {
           created_at?: string;
         };
       };
-}
     };
   };
 };
