@@ -5,7 +5,7 @@ import type { Post, Comment } from '../../hooks/useAuth';
 
 const Posts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [comments, setComments] = useState<Record<string, Comment[]>>({});
+  const [commentsData, setCommentsData] = useState<Record<string, Comment[]>>({});
   const [newComment, setNewComment] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [submittingComment, setSubmittingComment] = useState<Record<string, boolean>>({});
@@ -17,15 +17,15 @@ const Posts: React.FC = () => {
 
   const fetchPosts = async () => {
     try {
-      const postsData = getAllPosts();
+      const postsData = await getAllPosts();
       setPosts(postsData);
       
       // Load comments for each post
-      const commentsData: Record<string, Comment[]> = {};
-      postsData.forEach(post => {
-        commentsData[post.id] = getComments(post.id);
-      });
-      setComments(commentsData);
+      const comments: Record<string, Comment[]> = {};
+      for (const post of postsData) {
+        comments[post.id] = await getComments(post.id);
+      }
+      setCommentsData(comments);
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
@@ -42,7 +42,7 @@ const Posts: React.FC = () => {
       const newCommentData = await addComment(postId, newComment[postId]);
       
       // Update comments state immediately
-      setComments(prev => ({
+      setCommentsData(prev => ({
         ...prev,
         [postId]: [newCommentData, ...(prev[postId] || [])]
       }));
@@ -176,7 +176,7 @@ const Posts: React.FC = () => {
                         <MessageSquare className="w-4 h-4 text-white" />
                       </div>
                       <h4 className="font-bold text-gray-900 text-lg">
-                        التعليقات ({comments[post.id]?.length || 0})
+                        التعليقات ({commentsData[post.id]?.length || 0})
                       </h4>
                     </div>
 
@@ -219,7 +219,7 @@ const Posts: React.FC = () => {
 
                     {/* Comments List */}
                     <div className="space-y-4">
-                      {comments[post.id]?.map((comment) => (
+                      {commentsData[post.id]?.map((comment) => (
                         <div key={comment.id} className="card-glass p-6">
                           <div className="flex items-start gap-4">
                             <div className="bg-gradient-to-br from-gray-400 to-gray-500 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">

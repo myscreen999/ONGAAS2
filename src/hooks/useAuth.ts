@@ -56,238 +56,120 @@ export interface Claim {
   updated_at: string;
 }
 
-// Mock data store for demo purposes
-let mockUsers: Profile[] = [
-  {
-    id: 'user-1',
-    user_id: 'user-1',
-    full_name: 'أحمد محمد',
-    car_number: '1234ABC',
-    phone_number: '+222 12 34 56 78',
-    profile_picture_url: null,
-    drivers_license_url: null,
-    insurance_start_date: '2024-01-01',
-    insurance_end_date: '2024-12-31',
-    is_verified: true,
-    is_admin: false,
-    created_at: '2025-01-01T00:00:00Z',
-    updated_at: '2025-01-01T00:00:00Z'
-  },
-  {
-    id: 'user-2',
-    user_id: 'user-2',
-    full_name: 'فاطمة علي',
-    car_number: '5678DEF',
-    phone_number: '+222 87 65 43 21',
-    profile_picture_url: null,
-    drivers_license_url: null,
-    insurance_start_date: '2024-01-01',
-    insurance_end_date: '2024-12-31',
-    is_verified: false,
-    is_admin: false,
-    created_at: '2025-01-01T00:00:00Z',
-    updated_at: '2025-01-01T00:00:00Z'
-  },
-  {
-    id: 'admin-1',
-    user_id: 'admin-1',
-    full_name: 'مدير النظام',
-    car_number: 'ADMIN',
-    phone_number: '+222 34 14 14 97',
-    profile_picture_url: null,
-    drivers_license_url: null,
-    insurance_start_date: '2025-01-01',
-    insurance_end_date: '2025-12-31',
-    is_verified: true,
-    is_admin: true,
-    created_at: '2025-01-01T00:00:00Z',
-    updated_at: '2025-01-01T00:00:00Z'
-  }
-];
-
-// Mock posts data
-let mockPosts: Post[] = [
-  {
-    id: 'post-1',
-    title: 'إطلاق النظام الإلكتروني المتطور لمعالجة المطالبات',
-    content: 'يسعدنا أن نعلن عن إطلاق النظام الإلكتروني الجديد والمتطور لمعالجة المطالبات التأمينية. هذا النظام يوفر تتبعاً مباشراً لحالة المطالبة، إشعارات فورية، ومعالجة أسرع وأكثر شفافية. يمكن للأعضاء الآن تقديم مطالباتهم إلكترونياً ومتابعة تقدمها خطوة بخطوة.',
-    media_url: 'https://images.pexels.com/photos/5668858/pexels-photo-5668858.jpeg?auto=compress&cs=tinysrgb&w=800',
-    media_type: 'image',
-    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    created_by: 'admin-1',
-    author_name: 'مدير النظام'
-  },
-  {
-    id: 'post-2',
-    title: 'ورشة توعوية شاملة حول حقوق المؤمنين والتأمين الإجباري',
-    content: 'ندعوكم لحضور ورشة توعوية مجانية وشاملة حول حقوق المؤمنين، كيفية التعامل مع شركات التأمين، وأهمية التأمين الإجباري للمركبات. الورشة تتضمن محاضرات من خبراء قانونيين ومختصين في مجال التأمين، مع جلسة أسئلة وأجوبة مفتوحة. الحضور مجاني والمقاعد محدودة.',
-    media_url: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=800',
-    media_type: 'image',
-    created_at: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-    created_by: 'admin-1',
-    author_name: 'مدير النظام'
-  },
-  {
-    id: 'post-3',
-    title: 'تحديث مهم: زيادة معدل نجاح المطالبات إلى 96%',
-    content: 'نفخر بالإعلان عن تحقيق معدل نجاح جديد في معالجة المطالبات وصل إلى 96%، وهو إنجاز يعكس التزامنا بحماية حقوق المؤمنين. هذا الإنجاز تحقق بفضل تطوير أساليب المتابعة والتفاوض مع شركات التأمين، وتدريب فريق العمل على أحدث الممارسات في هذا المجال.',
-    media_url: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800',
-    media_type: 'image',
-    created_at: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
-    created_by: 'admin-1',
-    author_name: 'مدير النظام'
-  }
-];
-
-// Mock comments data
-let mockComments: Comment[] = [
-  {
-    id: 'comment-1',
-    post_id: 'post-1',
-    user_id: 'user-1',
-    content: 'شكراً لكم على هذا التطوير الرائع! النظام الجديد سيسهل علينا كثيراً متابعة مطالباتنا. هل يمكن الحصول على دليل استخدام للنظام؟',
-    created_at: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
-    author_name: 'أحمد محمد'
-  },
-  {
-    id: 'comment-2',
-    post_id: 'post-2',
-    user_id: 'user-2',
-    content: 'ورشة ممتازة ومفيدة جداً! هل ستكون هناك ورش أخرى في المستقبل؟ وهل يمكن الحصول على شهادة حضور؟',
-    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    author_name: 'فاطمة علي'
-  },
-  {
-    id: 'comment-3',
-    post_id: 'post-1',
-    user_id: 'user-2',
-    content: 'النظام يبدو متطوراً جداً. هل سيكون متاحاً على الهواتف الذكية أيضاً؟',
-    created_at: new Date(Date.now() - 21600000).toISOString(), // 6 hours ago
-    author_name: 'فاطمة علي'
-  },
-  {
-    id: 'comment-4',
-    post_id: 'post-3',
-    user_id: 'user-1',
-    content: 'إنجاز رائع! هذا يعكس مدى جدية الجمعية في خدمة المجتمع. بارك الله فيكم.',
-    created_at: new Date(Date.now() - 129600000).toISOString(), // 1.5 days ago
-    author_name: 'أحمد محمد'
-  }
-];
-
-// Mock claims data
-let mockClaims: Claim[] = [
-  {
-    id: 'claim-1',
-    claim_number: 'CLM-2025-001',
-    user_id: 'user-1',
-    car_number: '1234ABC',
-    accident_date: '2025-01-15',
-    description: 'حادث مروري بسيط في شارع الاستقلال أمام البنك المركزي. تلف في المصد الأمامي والمصباح الأيمن.',
-    accident_photo_1_url: 'https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=400',
-    accident_photo_2_url: 'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=400',
-    insurance_receipt_url: 'https://images.pexels.com/photos/6863183/pexels-photo-6863183.jpeg?auto=compress&cs=tinysrgb&w=400',
-    police_report_url: 'https://images.pexels.com/photos/8112199/pexels-photo-8112199.jpeg?auto=compress&cs=tinysrgb&w=400',
-    progress: 75,
-    status: 'processing',
-    created_at: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
-    updated_at: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-  },
-  {
-    id: 'claim-2',
-    claim_number: 'CLM-2025-002',
-    user_id: 'user-2',
-    car_number: '5678DEF',
-    accident_date: '2025-01-18',
-    description: 'تلف في الباب الخلفي نتيجة حادث في موقف السيارات. خدوش عميقة وانبعاج في الباب.',
-    accident_photo_1_url: 'https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=400',
-    accident_photo_2_url: null,
-    insurance_receipt_url: 'https://images.pexels.com/photos/6863183/pexels-photo-6863183.jpeg?auto=compress&cs=tinysrgb&w=400',
-    police_report_url: 'https://images.pexels.com/photos/8112199/pexels-photo-8112199.jpeg?auto=compress&cs=tinysrgb&w=400',
-    progress: 25,
-    status: 'under_review',
-    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    updated_at: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-  }
-];
-
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session in localStorage
-    const savedUser = localStorage.getItem('currentUser');
-    const savedProfile = localStorage.getItem('currentProfile');
-    
-    if (savedUser && savedProfile) {
-      setUser(JSON.parse(savedUser));
-      setProfile(JSON.parse(savedProfile));
-    }
-    
-    setLoading(false);
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        await fetchUserProfile(session.user.id);
+      }
+      setLoading(false);
+    };
+
+    getInitialSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        await fetchUserProfile(session.user.id);
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
 
   const signInWithCarNumber = async (carNumber: string, password: string) => {
     try {
-      const profileData = mockUsers.find(user => user.car_number === carNumber);
-      
-      if (!profileData) {
+      // Find profile by car number
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('car_number', carNumber)
+        .single();
+
+      if (profileError || !profileData) {
         throw new Error('رقم السيارة غير موجود');
       }
 
-      // Simple password check
-      if (password !== 'user123') {
-        throw new Error('كلمة المرور غير صحيحة');
+      // Sign in with email (we'll use car_number@domain.com format)
+      const email = `${carNumber.toLowerCase()}@ongaas.mr`;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('كلمة المرور غير صحيحة');
+        }
+        throw new Error(error.message);
       }
 
-      // Create user session
-      const user = { 
-        id: profileData.user_id,
-        email: `${carNumber}@example.com`,
-        user_metadata: { role: profileData.is_admin ? 'admin' : 'user' }
-      } as User;
-      
-      setUser(user);
-      setProfile(profileData);
-      
-      // Save to localStorage
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      localStorage.setItem('currentProfile', JSON.stringify(profileData));
-      
-      return { user, isAdmin: profileData.is_admin };
+      return { user: data.user, isAdmin: profileData.is_admin };
     } catch (error) {
       throw error;
     }
   };
 
   const signInAdmin = async (email: string, password: string) => {
-    // Check admin credentials
-    if (email !== 'myscreen999@gmail.com' || password !== 'myscreen999') {
-      throw new Error('بيانات تسجيل الدخول غير صحيحة');
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        throw new Error('بيانات تسجيل الدخول غير صحيحة');
+      }
+
+      // Check if user is admin
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', data.user.id)
+        .single();
+
+      if (!profileData?.is_admin) {
+        await supabase.auth.signOut();
+        throw new Error('ليس لديك صلاحيات إدارية');
+      }
+
+      return { user: data.user, isAdmin: true };
+    } catch (error) {
+      throw error;
     }
-
-    const adminProfile = mockUsers.find(user => user.is_admin);
-    if (!adminProfile) {
-      throw new Error('حساب الإدارة غير موجود');
-    }
-
-    // Create admin user session
-    const adminUser = {
-      id: adminProfile.user_id,
-      email: 'myscreen999@gmail.com',
-      user_metadata: { role: 'admin' }
-    } as User;
-
-    setUser(adminUser);
-    setProfile(adminProfile);
-    
-    // Save to localStorage
-    localStorage.setItem('currentUser', JSON.stringify(adminUser));
-    localStorage.setItem('currentProfile', JSON.stringify(adminProfile));
-
-    return { user: adminUser, isAdmin: true };
   };
 
   const signUp = async (userData: {
@@ -301,101 +183,151 @@ export const useAuth = () => {
   }) => {
     try {
       // Check for existing car number
-      const existingUser = mockUsers.find(user => user.car_number === userData.carNumber);
-      if (existingUser) {
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('car_number')
+        .eq('car_number', userData.carNumber)
+        .single();
+
+      if (existingProfile) {
         throw new Error('رقم السيارة مستخدم بالفعل');
       }
 
-      // Create new user profile
-      const newUserId = `user-${Date.now()}`;
-      const newProfile: Profile = {
-        id: newUserId,
-        user_id: newUserId,
-        full_name: userData.fullName,
-        car_number: userData.carNumber,
-        phone_number: userData.phoneNumber,
-        profile_picture_url: null,
-        drivers_license_url: null,
-        insurance_start_date: userData.insuranceStartDate,
-        insurance_end_date: userData.insuranceEndDate,
-        is_verified: false,
-        is_admin: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
+      // Create auth user with car number as email
+      const email = `${userData.carNumber.toLowerCase()}@ongaas.mr`;
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: userData.password,
+        options: {
+          data: {
+            full_name: userData.fullName,
+            car_number: userData.carNumber
+          }
+        }
+      });
 
-      // Add to mock users array
-      mockUsers.push(newProfile);
+      if (error) {
+        throw new Error(error.message);
+      }
 
-      // Auto-login the new user
-      const user = { 
-        id: newUserId,
-        email: userData.email,
-        user_metadata: { role: 'user' }
-      } as User;
-      
-      setUser(user);
-      setProfile(newProfile);
-      
-      // Save to localStorage
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      localStorage.setItem('currentProfile', JSON.stringify(newProfile));
+      if (data.user) {
+        // Create profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: data.user.id,
+            full_name: userData.fullName,
+            car_number: userData.carNumber,
+            phone_number: userData.phoneNumber,
+            insurance_start_date: userData.insuranceStartDate,
+            insurance_end_date: userData.insuranceEndDate,
+            is_verified: false,
+            is_admin: false
+          });
 
-      return { user };
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+        }
+      }
+
+      return { user: data.user };
     } catch (error) {
       throw error;
     }
   };
 
   const signOut = async () => {
-    setUser(null);
-    setProfile(null);
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('currentProfile');
+    await supabase.auth.signOut();
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!profile) return;
 
-    const updatedProfile = { 
-      ...profile, 
-      ...updates, 
-      updated_at: new Date().toISOString() 
-    };
-    
-    // Update in mock data
-    const index = mockUsers.findIndex(user => user.id === profile.id);
-    if (index !== -1) {
-      mockUsers[index] = updatedProfile;
-      
-      // Save to localStorage for persistence
-      localStorage.setItem('mockUsers', JSON.stringify(mockUsers));
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', profile.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setProfile(data);
+      return data;
+    } catch (error) {
+      throw error;
     }
-    
-    setProfile(updatedProfile);
-    localStorage.setItem('currentProfile', JSON.stringify(updatedProfile));
-    
-    return updatedProfile;
   };
 
-  const getAllUsers = () => {
-    return mockUsers.filter(user => !user.is_admin);
+  const getAllUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('is_admin', false)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return [];
+    }
   };
 
   const verifyUser = async (userId: string) => {
-    const index = mockUsers.findIndex(user => user.id === userId);
-    if (index !== -1) {
-      mockUsers[index] = { ...mockUsers[index], is_verified: true, updated_at: new Date().toISOString() };
-      
-      // Save to localStorage for persistence
-      localStorage.setItem('mockUsers', JSON.stringify(mockUsers));
-      return mockUsers[index];
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ 
+          is_verified: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
     }
-    throw new Error('المستخدم غير موجود');
   };
 
-  const getAllPosts = () => {
-    return mockPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const getAllPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles!posts_created_by_fkey(full_name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return (data || []).map(post => ({
+        ...post,
+        author_name: post.profiles?.full_name || 'مستخدم غير معروف'
+      }));
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      return [];
+    }
   };
 
   const createPost = async (postData: {
@@ -408,22 +340,33 @@ export const useAuth = () => {
       throw new Error('غير مصرح لك بإنشاء المنشورات');
     }
 
-    const newPost: Post = {
-      id: `post-${Date.now()}`,
-      title: postData.title,
-      content: postData.content,
-      media_url: postData.media_url || null,
-      media_type: postData.media_type || null,
-      created_at: new Date().toISOString(),
-      created_by: profile.id,
-      author_name: profile.full_name
-    };
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .insert({
+          title: postData.title,
+          content: postData.content,
+          media_url: postData.media_url || null,
+          media_type: postData.media_type || null,
+          created_by: profile.id
+        })
+        .select(`
+          *,
+          profiles!posts_created_by_fkey(full_name)
+        `)
+        .single();
 
-    mockPosts.unshift(newPost);
-    
-    // Save to localStorage for persistence
-    localStorage.setItem('mockPosts', JSON.stringify(mockPosts));
-    return newPost;
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return {
+        ...data,
+        author_name: data.profiles?.full_name || profile.full_name
+      };
+    } catch (error) {
+      throw error;
+    }
   };
 
   const updatePost = async (postId: string, updates: Partial<Post>) => {
@@ -431,16 +374,34 @@ export const useAuth = () => {
       throw new Error('غير مصرح لك بتعديل المنشورات');
     }
 
-    const index = mockPosts.findIndex(post => post.id === postId);
-    if (index === -1) {
-      throw new Error('المنشور غير موجود');
-    }
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .update({
+          title: updates.title,
+          content: updates.content,
+          media_url: updates.media_url,
+          media_type: updates.media_type,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', postId)
+        .select(`
+          *,
+          profiles!posts_created_by_fkey(full_name)
+        `)
+        .single();
 
-    mockPosts[index] = { ...mockPosts[index], ...updates };
-    
-    // Save to localStorage for persistence
-    localStorage.setItem('mockPosts', JSON.stringify(mockPosts));
-    return mockPosts[index];
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return {
+        ...data,
+        author_name: data.profiles?.full_name || 'مستخدم غير معروف'
+      };
+    } catch (error) {
+      throw error;
+    }
   };
 
   const deletePost = async (postId: string) => {
@@ -448,26 +409,45 @@ export const useAuth = () => {
       throw new Error('غير مصرح لك بحذف المنشورات');
     }
 
-    const index = mockPosts.findIndex(post => post.id === postId);
-    if (index === -1) {
-      throw new Error('المنشور غير موجود');
-    }
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId);
 
-    // Remove associated comments
-    mockComments = mockComments.filter(comment => comment.post_id !== postId);
-    
-    mockPosts.splice(index, 1);
-    
-    // Save to localStorage for persistence
-    localStorage.setItem('mockPosts', JSON.stringify(mockPosts));
-    localStorage.setItem('mockComments', JSON.stringify(mockComments));
-    return true;
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
   };
 
-  const getComments = (postId: string) => {
-    return mockComments
-      .filter(comment => comment.post_id === postId)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const getComments = async (postId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          profiles!comments_user_id_fkey(full_name)
+        `)
+        .eq('post_id', postId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return (data || []).map(comment => ({
+        ...comment,
+        author_name: comment.profiles?.full_name || 'مستخدم غير معروف'
+      }));
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      return [];
+    }
   };
 
   const addComment = async (postId: string, content: string) => {
@@ -475,34 +455,73 @@ export const useAuth = () => {
       throw new Error('يجب تسجيل الدخول للتعليق');
     }
 
-    const newComment: Comment = {
-      id: `comment-${Date.now()}`,
-      post_id: postId,
-      user_id: profile.id,
-      content: content.trim(),
-      created_at: new Date().toISOString(),
-      author_name: profile.full_name
-    };
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({
+          post_id: postId,
+          user_id: profile.id,
+          content: content.trim()
+        })
+        .select(`
+          *,
+          profiles!comments_user_id_fkey(full_name)
+        `)
+        .single();
 
-    mockComments.push(newComment);
-    
-    // Save to localStorage for persistence
-    localStorage.setItem('mockComments', JSON.stringify(mockComments));
-    return newComment;
-  };
+      if (error) {
+        throw new Error(error.message);
+      }
 
-  const getAllClaims = () => {
-    if (!profile?.is_admin) {
-      return mockClaims.filter(claim => claim.user_id === profile?.id);
+      return {
+        ...data,
+        author_name: data.profiles?.full_name || profile.full_name
+      };
+    } catch (error) {
+      throw error;
     }
-    return mockClaims.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   };
 
-  const getUserClaims = () => {
+  const getAllClaims = async () => {
+    try {
+      let query = supabase.from('claims').select('*');
+      
+      if (!profile?.is_admin) {
+        query = query.eq('user_id', profile?.id);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching claims:', error);
+      return [];
+    }
+  };
+
+  const getUserClaims = async () => {
     if (!profile) return [];
-    return mockClaims
-      .filter(claim => claim.user_id === profile.id)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    try {
+      const { data, error } = await supabase
+        .from('claims')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching user claims:', error);
+      return [];
+    }
   };
 
   const createClaim = async (claimData: {
@@ -521,28 +540,33 @@ export const useAuth = () => {
       throw new Error('يجب التحقق من حسابك لتقديم مطالبة');
     }
 
-    const newClaim: Claim = {
-      id: `claim-${Date.now()}`,
-      claim_number: `CLM-2025-${String(mockClaims.length + 1).padStart(3, '0')}`,
-      user_id: profile.id,
-      car_number: profile.car_number,
-      accident_date: claimData.accident_date,
-      description: claimData.description,
-      accident_photo_1_url: claimData.accident_photo_1 ? 'https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=400' : null,
-      accident_photo_2_url: claimData.accident_photo_2 ? 'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=400' : null,
-      insurance_receipt_url: 'https://images.pexels.com/photos/6863183/pexels-photo-6863183.jpeg?auto=compress&cs=tinysrgb&w=400',
-      police_report_url: 'https://images.pexels.com/photos/8112199/pexels-photo-8112199.jpeg?auto=compress&cs=tinysrgb&w=400',
-      progress: 0,
-      status: 'submitted',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    try {
+      // For demo purposes, we'll use placeholder URLs for file uploads
+      const { data, error } = await supabase
+        .from('claims')
+        .insert({
+          user_id: profile.id,
+          car_number: profile.car_number,
+          accident_date: claimData.accident_date,
+          description: claimData.description,
+          accident_photo_1_url: claimData.accident_photo_1 ? 'https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=400' : null,
+          accident_photo_2_url: claimData.accident_photo_2 ? 'https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=400' : null,
+          insurance_receipt_url: 'https://images.pexels.com/photos/6863183/pexels-photo-6863183.jpeg?auto=compress&cs=tinysrgb&w=400',
+          police_report_url: 'https://images.pexels.com/photos/8112199/pexels-photo-8112199.jpeg?auto=compress&cs=tinysrgb&w=400',
+          progress: 0,
+          status: 'submitted'
+        })
+        .select()
+        .single();
 
-    mockClaims.push(newClaim);
-    
-    // Save to localStorage for persistence
-    localStorage.setItem('mockClaims', JSON.stringify(mockClaims));
-    return newClaim;
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const updateClaim = async (claimId: string, updates: { progress: number; status?: string }) => {
@@ -550,68 +574,36 @@ export const useAuth = () => {
       throw new Error('غير مصرح لك بتحديث المطالبات');
     }
 
-    const index = mockClaims.findIndex(claim => claim.id === claimId);
-    if (index === -1) {
-      throw new Error('المطالبة غير موجودة');
+    try {
+      let status = updates.status;
+      if (!status) {
+        if (updates.progress >= 100) status = 'completed';
+        else if (updates.progress >= 75) status = 'processing';
+        else if (updates.progress >= 50) status = 'under_review';
+        else status = 'submitted';
+      }
+
+      const { data, error } = await supabase
+        .from('claims')
+        .update({
+          progress: updates.progress,
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', claimId)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
     }
-
-    let status = updates.status || mockClaims[index].status;
-    if (updates.progress >= 100) status = 'completed';
-    else if (updates.progress >= 75) status = 'processing';
-    else if (updates.progress >= 50) status = 'under_review';
-    else status = 'submitted';
-
-    mockClaims[index] = {
-      ...mockClaims[index],
-      progress: updates.progress,
-      status,
-      updated_at: new Date().toISOString()
-    };
-
-    // Save to localStorage for persistence
-    localStorage.setItem('mockClaims', JSON.stringify(mockClaims));
-    return mockClaims[index];
   };
 
-  // Load data from localStorage on initialization
-  React.useEffect(() => {
-    const savedUsers = localStorage.getItem('mockUsers');
-    const savedPosts = localStorage.getItem('mockPosts');
-    const savedComments = localStorage.getItem('mockComments');
-    const savedClaims = localStorage.getItem('mockClaims');
-    
-    if (savedUsers) {
-      try {
-        mockUsers = JSON.parse(savedUsers);
-      } catch (error) {
-        console.error('Error loading saved users:', error);
-      }
-    }
-    
-    if (savedPosts) {
-      try {
-        mockPosts = JSON.parse(savedPosts);
-      } catch (error) {
-        console.error('Error loading saved posts:', error);
-      }
-    }
-    
-    if (savedComments) {
-      try {
-        mockComments = JSON.parse(savedComments);
-      } catch (error) {
-        console.error('Error loading saved comments:', error);
-      }
-    }
-    
-    if (savedClaims) {
-      try {
-        mockClaims = JSON.parse(savedClaims);
-      } catch (error) {
-        console.error('Error loading saved claims:', error);
-      }
-    }
-  }, []);
   return {
     user,
     profile,

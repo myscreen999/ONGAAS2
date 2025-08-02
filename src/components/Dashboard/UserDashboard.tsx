@@ -67,10 +67,18 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ isOpen, onClose, userProf
 
   useEffect(() => {
     if (isOpen && userProfile) {
-      const userClaims = getUserClaims();
-      setClaims(userClaims);
+      fetchUserClaims();
     }
   }, [isOpen, userProfile]);
+
+  const fetchUserClaims = async () => {
+    try {
+      const userClaims = await getUserClaims();
+      setClaims(userClaims);
+    } catch (error) {
+      console.error('Error fetching user claims:', error);
+    }
+  };
 
   if (!isOpen) return null;
 

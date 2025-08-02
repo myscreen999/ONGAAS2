@@ -51,13 +51,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose }) => {
     setLoading(true);
     try {
       if (activeTab === 'users') {
-        const allUsers = getAllUsers();
+        const allUsers = await getAllUsers();
         setUsers(allUsers);
       } else if (activeTab === 'posts') {
-        const allPosts = getAllPosts();
+        const allPosts = await getAllPosts();
         setPosts(allPosts);
       } else if (activeTab === 'claims') {
-        const allClaims = getAllClaims();
+        const allClaims = await getAllClaims();
         setClaims(allClaims);
       }
     } catch (error) {

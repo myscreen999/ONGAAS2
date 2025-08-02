@@ -14,7 +14,7 @@ const Claims: React.FC = () => {
 
   const fetchClaims = async () => {
     try {
-      const claimsData = getAllClaims();
+      const claimsData = await getAllClaims();
       // Show only the latest 5 claims for homepage
       setClaims(claimsData.slice(0, 5));
     } catch (error) {
