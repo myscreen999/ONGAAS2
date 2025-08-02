@@ -58,44 +58,26 @@ export interface Claim {
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        setLoading(true);
-        // Get initial session
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting session:', error);
-        }
-        
-        if (session?.user) {
-          setUser(session.user);
-          await fetchUserProfile(session.user.id);
-        }
-      } catch (error) {
-        console.error('Error in initializeAuth:', error);
-      } finally {
-        setLoading(false);
+    // Get initial session without blocking
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchUserProfile(session.user.id);
       }
-    };
-
-    initializeAuth();
+    }).catch(error => {
+      console.log('Session error (non-blocking):', error);
+    });
     
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      try {
-        if (session?.user) {
-          setUser(session.user);
-          await fetchUserProfile(session.user.id);
-        } else {
-          setUser(null);
-          setProfile(null);
-        }
-      } catch (error) {
-        console.error('Error in auth state change:', error);
+      if (session?.user) {
+        setUser(session.user);
+        await fetchUserProfile(session.user.id);
+      } else {
+        setUser(null);
+        setProfile(null);
       }
     });
 
@@ -819,7 +801,7 @@ export const useAuth = () => {
   return {
     user,
     profile,
-    loading,
+    loading: false, // Always false to prevent infinite loading
     signInWithCarNumber,
     signInAdmin,
     signUp,
