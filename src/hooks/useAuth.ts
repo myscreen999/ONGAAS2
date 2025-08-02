@@ -108,8 +108,8 @@ let mockUsers: Profile[] = [
 let mockPosts: Post[] = [
   {
     id: 'post-1',
-    title: 'إعلان مهم حول تحديث نظام المطالبات',
-    content: 'نود إعلامكم بأنه تم تحديث نظام معالجة المطالبات لتحسين الخدمة وتسريع عملية المعالجة. سيتم تطبيق النظام الجديد اعتباراً من الأسبوع القادم.',
+    title: 'إطلاق النظام الإلكتروني المتطور لمعالجة المطالبات',
+    content: 'يسعدنا أن نعلن عن إطلاق النظام الإلكتروني الجديد والمتطور لمعالجة المطالبات التأمينية. هذا النظام يوفر تتبعاً مباشراً لحالة المطالبة، إشعارات فورية، ومعالجة أسرع وأكثر شفافية. يمكن للأعضاء الآن تقديم مطالباتهم إلكترونياً ومتابعة تقدمها خطوة بخطوة.',
     media_url: 'https://images.pexels.com/photos/5668858/pexels-photo-5668858.jpeg?auto=compress&cs=tinysrgb&w=800',
     media_type: 'image',
     created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
@@ -118,11 +118,21 @@ let mockPosts: Post[] = [
   },
   {
     id: 'post-2',
-    title: 'ورشة توعوية حول حقوق المؤمنين',
-    content: 'ندعوكم لحضور ورشة توعوية مجانية حول حقوق المؤمنين وكيفية التعامل مع شركات التأمين. الورشة ستقام يوم السبت القادم في مقر الجمعية.',
-    media_url: null,
-    media_type: null,
+    title: 'ورشة توعوية شاملة حول حقوق المؤمنين والتأمين الإجباري',
+    content: 'ندعوكم لحضور ورشة توعوية مجانية وشاملة حول حقوق المؤمنين، كيفية التعامل مع شركات التأمين، وأهمية التأمين الإجباري للمركبات. الورشة تتضمن محاضرات من خبراء قانونيين ومختصين في مجال التأمين، مع جلسة أسئلة وأجوبة مفتوحة. الحضور مجاني والمقاعد محدودة.',
+    media_url: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=800',
+    media_type: 'image',
     created_at: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    created_by: 'admin-1',
+    author_name: 'مدير النظام'
+  },
+  {
+    id: 'post-3',
+    title: 'تحديث مهم: زيادة معدل نجاح المطالبات إلى 96%',
+    content: 'نفخر بالإعلان عن تحقيق معدل نجاح جديد في معالجة المطالبات وصل إلى 96%، وهو إنجاز يعكس التزامنا بحماية حقوق المؤمنين. هذا الإنجاز تحقق بفضل تطوير أساليب المتابعة والتفاوض مع شركات التأمين، وتدريب فريق العمل على أحدث الممارسات في هذا المجال.',
+    media_url: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800',
+    media_type: 'image',
+    created_at: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
     created_by: 'admin-1',
     author_name: 'مدير النظام'
   }
@@ -134,7 +144,7 @@ let mockComments: Comment[] = [
     id: 'comment-1',
     post_id: 'post-1',
     user_id: 'user-1',
-    content: 'شكراً لكم على هذا التحديث المهم. متى سيتم تطبيق النظام الجديد؟',
+    content: 'شكراً لكم على هذا التطوير الرائع! النظام الجديد سيسهل علينا كثيراً متابعة مطالباتنا. هل يمكن الحصول على دليل استخدام للنظام؟',
     created_at: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
     author_name: 'أحمد محمد'
   },
@@ -142,9 +152,25 @@ let mockComments: Comment[] = [
     id: 'comment-2',
     post_id: 'post-2',
     user_id: 'user-2',
-    content: 'هل الورشة مفتوحة للجميع؟ وما هو الوقت المحدد؟',
+    content: 'ورشة ممتازة ومفيدة جداً! هل ستكون هناك ورش أخرى في المستقبل؟ وهل يمكن الحصول على شهادة حضور؟',
     created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
     author_name: 'فاطمة علي'
+  },
+  {
+    id: 'comment-3',
+    post_id: 'post-1',
+    user_id: 'user-2',
+    content: 'النظام يبدو متطوراً جداً. هل سيكون متاحاً على الهواتف الذكية أيضاً؟',
+    created_at: new Date(Date.now() - 21600000).toISOString(), // 6 hours ago
+    author_name: 'فاطمة علي'
+  },
+  {
+    id: 'comment-4',
+    post_id: 'post-3',
+    user_id: 'user-1',
+    content: 'إنجاز رائع! هذا يعكس مدى جدية الجمعية في خدمة المجتمع. بارك الله فيكم.',
+    created_at: new Date(Date.now() - 129600000).toISOString(), // 1.5 days ago
+    author_name: 'أحمد محمد'
   }
 ];
 

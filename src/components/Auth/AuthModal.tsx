@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Shield, Car, Phone, Calendar, Upload } from 'lucide-react';
+import { X, User, Shield, Car, Phone, Calendar, Upload, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface AuthModalProps {
@@ -13,6 +13,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const { signInWithCarNumber, signInAdmin, signUp } = useAuth();
 
@@ -109,42 +111,43 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="card-modern max-w-lg w-full max-h-[90vh] overflow-y-auto animate-fade-scale">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex justify-between items-center p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
+          <h2 className="text-2xl font-bold text-gray-900">
             {isSignUp ? 'إنشاء حساب جديد' : (isAdminLogin ? 'دخول الإدارة' : 'تسجيل الدخول')}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
           >
-            <X className="w-6 h-6" />
+            <X className="w-7 h-7" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-8">
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            <div className="notification-error mb-6 animate-slide-up">
+              <X className="w-5 h-5" />
               {error}
             </div>
           )}
 
           {isSignUp ? (
             /* Sign Up Form */
-            <form onSubmit={handleSignUp} className="space-y-4">
+            <form onSubmit={handleSignUp} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   الاسم الكامل
                 </label>
                 <div className="relative">
-                  <User className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                  <User className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
                     required
-                    className="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="form-input-modern pr-12"
                     placeholder="أدخل اسمك الكامل"
                     value={signupData.fullName}
                     onChange={(e) => setSignupData(prev => ({ ...prev, fullName: e.target.value }))}
@@ -153,15 +156,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   رقم السيارة
                 </label>
                 <div className="relative">
-                  <Car className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                  <Car className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
                     required
-                    className="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="form-input-modern pr-12"
                     placeholder="مثال: 1234ABC"
                     value={signupData.carNumber}
                     onChange={(e) => setSignupData(prev => ({ ...prev, carNumber: e.target.value }))}
@@ -170,15 +173,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   رقم الهاتف
                 </label>
                 <div className="relative">
-                  <Phone className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                  <Phone className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
                   <input
                     type="tel"
                     required
-                    className="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="form-input-modern pr-12"
                     placeholder="+222 12 34 56 78"
                     value={signupData.phoneNumber}
                     onChange={(e) => setSignupData(prev => ({ ...prev, phoneNumber: e.target.value }))}
@@ -187,30 +190,33 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   البريد الإلكتروني
                 </label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="example@email.com"
-                  value={signupData.email}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, email: e.target.value }))}
-                />
+                <div className="relative">
+                  <Mail className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+                  <input
+                    type="email"
+                    required
+                    className="form-input-modern pr-12"
+                    placeholder="example@email.com"
+                    value={signupData.email}
+                    onChange={(e) => setSignupData(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     بداية التأمين
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                    <Calendar className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
                     <input
                       type="date"
                       required
-                      className="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="form-input-modern pr-12"
                       value={signupData.insuranceStartDate}
                       onChange={(e) => setSignupData(prev => ({ ...prev, insuranceStartDate: e.target.value }))}
                     />
@@ -218,15 +224,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     نهاية التأمين
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                    <Calendar className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
                     <input
                       type="date"
                       required
-                      className="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="form-input-modern pr-12"
                       value={signupData.insuranceEndDate}
                       onChange={(e) => setSignupData(prev => ({ ...prev, insuranceEndDate: e.target.value }))}
                     />
@@ -235,85 +241,128 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   كلمة المرور
                 </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="أدخل كلمة المرور"
-                  value={signupData.password}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, password: e.target.value }))}
-                />
+                <div className="relative">
+                  <Lock className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    className="form-input-modern pr-12 pl-12"
+                    placeholder="أدخل كلمة المرور"
+                    value={signupData.password}
+                    onChange={(e) => setSignupData(prev => ({ ...prev, password: e.target.value }))}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute left-4 top-4 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   تأكيد كلمة المرور
                 </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="أعد إدخال كلمة المرور"
-                  value={signupData.confirmPassword}
-                  onChange={(e) => setSignupData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                />
+                <div className="relative">
+                  <Lock className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    className="form-input-modern pr-12 pl-12"
+                    placeholder="أعد إدخال كلمة المرور"
+                    value={signupData.confirmPassword}
+                    onChange={(e) => setSignupData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute left-4 top-4 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="w-full btn-primary py-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {loading ? 'جارٍ إنشاء الحساب...' : 'إنشاء حساب'}
+                {loading ? (
+                  <>
+                    <div className="spinner-modern h-5 w-5"></div>
+                    جارٍ إنشاء الحساب...
+                  </>
+                ) : (
+                  <>
+                    <User className="w-5 h-5" />
+                    إنشاء حساب
+                  </>
+                )}
               </button>
             </form>
           ) : (
             /* Login Form */
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-6">
               {isAdminLogin ? (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
                       البريد الإلكتروني
                     </label>
-                    <input
-                      type="email"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="البريد الإلكتروني للإدارة"
-                      value={loginData.adminEmail}
-                      onChange={(e) => setLoginData(prev => ({ ...prev, adminEmail: e.target.value }))}
-                    />
+                    <div className="relative">
+                      <Mail className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+                      <input
+                        type="email"
+                        required
+                        className="form-input-modern pr-12"
+                        placeholder="البريد الإلكتروني للإدارة"
+                        value={loginData.adminEmail}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, adminEmail: e.target.value }))}
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
                       كلمة المرور
                     </label>
-                    <input
-                      type="password"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="كلمة مرور الإدارة"
-                      value={loginData.adminPassword}
-                      onChange={(e) => setLoginData(prev => ({ ...prev, adminPassword: e.target.value }))}
-                    />
+                    <div className="relative">
+                      <Lock className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required
+                        className="form-input-modern pr-12 pl-12"
+                        placeholder="كلمة مرور الإدارة"
+                        value={loginData.adminPassword}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, adminPassword: e.target.value }))}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute left-4 top-4 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
                   </div>
                 </>
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
                       رقم السيارة
                     </label>
                     <div className="relative">
-                      <Car className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                      <Car className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
                       <input
                         type="text"
                         required
-                        className="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="form-input-modern pr-12"
                         placeholder="أدخل رقم سيارتك"
                         value={loginData.carNumber}
                         onChange={(e) => setLoginData(prev => ({ ...prev, carNumber: e.target.value }))}
@@ -321,17 +370,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
                       كلمة المرور
                     </label>
-                    <input
-                      type="password"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="أدخل كلمة المرور"
-                      value={loginData.password}
-                      onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                    />
+                    <div className="relative">
+                      <Lock className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required
+                        className="form-input-modern pr-12 pl-12"
+                        placeholder="أدخل كلمة المرور"
+                        value={loginData.password}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute left-4 top-4 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
@@ -339,47 +398,57 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="w-full btn-primary py-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {loading ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول'}
+                {loading ? (
+                  <>
+                    <div className="spinner-modern h-5 w-5"></div>
+                    جارٍ تسجيل الدخول...
+                  </>
+                ) : (
+                  <>
+                    {isAdminLogin ? <Shield className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                    تسجيل الدخول
+                  </>
+                )}
               </button>
             </form>
           )}
 
           {/* Switch between forms */}
-          <div className="mt-6 text-center space-y-2">
+          <div className="mt-8 text-center space-y-4">
             {!isSignUp && (
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-center">
                 <button
                   type="button"
                   onClick={() => setIsAdminLogin(!isAdminLogin)}
-                  className="text-blue-600 hover:text-blue-700 flex items-center"
+                  className="btn-secondary flex items-center gap-2"
                 >
-                  <Shield className="w-4 h-4 ml-1" />
+                  <Shield className="w-4 h-4" />
                   {isAdminLogin ? 'دخول المستخدمين' : 'دخول الإدارة'}
                 </button>
               </div>
             )}
             
-            <div className="pt-4 border-t">
+            <div className="pt-6 border-t border-gray-200">
               {isSignUp ? (
-                <p className="text-sm text-gray-600">
+                <p className="text-gray-600">
                   لديك حساب بالفعل؟{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(false)}
-                    className="text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-blue-600 hover:text-blue-700 font-bold underline"
                   >
                     تسجيل الدخول
                   </button>
                 </p>
               ) : (
-                <p className="text-sm text-gray-600">
+                <p className="text-gray-600">
                   ليس لديك حساب؟{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(true)}
-                    className="text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-blue-600 hover:text-blue-700 font-bold underline"
                   >
                     إنشاء حساب جديد
                   </button>
