@@ -184,6 +184,25 @@ export const useAuth = () => {
         throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
       }
 
+      // First, check if user exists in our database
+      const { data: profileData, error: profileError } = await supabase
+        .from('app_users')
+        .select('*')
+        .eq('car_number', carNumber.trim())
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error checking profile:', profileError);
+        if (profileError.code === 'PGRST116') {
+          throw new Error('رقم السيارة غير موجود في النظام');
+        }
+        throw new Error(`خطأ في قاعدة البيانات: ${profileError.message}`);
+      }
+
+      if (!profileData) {
+        throw new Error('رقم السيارة غير مسجل في النظام');
+      }
+
       // Create email from car number
       const cleanCarNumber = carNumber.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
       if (!cleanCarNumber) {
@@ -193,112 +212,77 @@ export const useAuth = () => {
       const email = `${cleanCarNumber}@ongaas.mr`;
       
       // Try to sign in first
-      const { data, error } = await supabase.auth.signInWithPassword({
+      let { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) {
-        console.log('Auth sign in error:', error);
+      // If auth user doesn't exist, create it
+      if (error && (error.message.includes('Invalid login credentials') || 
+                   error.message.includes('Email not confirmed') ||
+                   error.message.includes('User not found'))) {
         
-        // If login fails, check if user exists in our database
-        const { data: profileData, error: profileError } = await supabase
-          .from('app_users')
-          .select('*')
-          .eq('car_number', carNumber.trim())
-          .maybeSingle();
-
-        if (profileError) {
-          console.error('Error checking profile:', profileError);
-          if (profileError.code === 'PGRST116') {
-            throw new Error('رقم السيارة غير موجود في النظام');
-          }
-          throw new Error(`خطأ في قاعدة البيانات: ${profileError.message}`);
-        }
-
-        if (!profileData) {
-          throw new Error('رقم السيارة غير مسجل في النظام');
-        }
-
-        // If user exists in database but auth failed, try to create auth user
-        if (error.message.includes('Invalid login credentials') || 
-            error.message.includes('Email not confirmed') ||
-            error.message.includes('User not found')) {
-          
-          console.log('Attempting to create auth user for existing profile');
-          
-          // Try to sign up the user in auth system
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: undefined, // Disable email confirmation
-              data: {
-                full_name: profileData.full_name,
-                car_number: profileData.car_number
-              }
+        console.log('Creating auth user for existing profile:', profileData.car_number);
+        
+        // Create auth user
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: undefined,
+            data: {
+              full_name: profileData.full_name,
+              car_number: profileData.car_number
             }
+          }
+        });
+
+        if (signUpError) {
+          console.error('Sign up error:', signUpError);
+          if (signUpError.message.includes('User already registered')) {
+            throw new Error('كلمة المرور غير صحيحة');
+          }
+          throw new Error(`خطأ في إنشاء المصادقة: ${signUpError.message}`);
+        }
+
+        if (signUpData.user) {
+          // Update profile with auth user ID
+          const { error: updateError } = await supabase
+            .from('app_users')
+            .update({ id: signUpData.user.id })
+            .eq('car_number', carNumber.trim());
+            
+          if (updateError) {
+            console.error('Error updating profile with auth ID:', updateError);
+          }
+
+          // Try to sign in again
+          const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+            email,
+            password
           });
 
-          if (signUpError) {
-            console.error('Sign up error:', signUpError);
-            if (signUpError.message.includes('User already registered')) {
-              throw new Error('كلمة المرور غير صحيحة');
-            }
-            throw new Error(`خطأ في إنشاء المصادقة: ${signUpError.message}`);
-          }
-
-          // Update the profile with the new auth user ID
-          if (signUpData.user) {
-            const { error: updateError } = await supabase
-              .from('app_users')
-              .update({ id: signUpData.user.id })
-              .eq('car_number', carNumber.trim());
-              
-            if (updateError) {
-              console.error('Error updating profile with auth ID:', updateError);
-            }
-
-            // Now try to sign in again
-            const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-              email,
-              password
-            });
-
-            if (retryError) {
-              console.error('Retry sign in error:', retryError);
-              throw new Error('كلمة المرور غير صحيحة');
-            }
-
-            return { user: retryData.user, isAdmin: profileData.is_admin };
-          }
-        } else {
-          // Handle other auth errors
-          if (error.message.includes('Invalid login credentials')) {
+          if (retryError) {
+            console.error('Retry sign in error:', retryError);
             throw new Error('كلمة المرور غير صحيحة');
-          } else if (error.message.includes('Email not confirmed')) {
-            throw new Error('البريد الإلكتروني غير مؤكد');
-          } else if (error.message.includes('Too many requests')) {
-            throw new Error('محاولات كثيرة جداً، يرجى المحاولة لاحقاً');
-          } else {
-            throw new Error(`خطأ في تسجيل الدخول: ${error.message}`);
           }
+
+          data = retryData;
+        }
+      } else if (error) {
+        // Handle other auth errors
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('كلمة المرور غير صحيحة');
+        } else if (error.message.includes('Email not confirmed')) {
+          throw new Error('البريد الإلكتروني غير مؤكد');
+        } else if (error.message.includes('Too many requests')) {
+          throw new Error('محاولات كثيرة جداً، يرجى المحاولة لاحقاً');
+        } else {
+          throw new Error(`خطأ في تسجيل الدخول: ${error.message}`);
         }
       }
 
-      // If sign in successful, get profile data
-      const { data: profileData, error: profileError } = await supabase
-        .from('app_users')
-        .select('*')
-        .eq('car_number', carNumber.trim())
-        .maybeSingle();
-
-      if (profileError) {
-        console.error('Error fetching profile after login:', profileError);
-        // Don't throw error here, just log it
-      }
-
-      return { user: data.user, isAdmin: profileData?.is_admin || false };
+      return { user: data.user, isAdmin: profileData.is_admin || false };
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;
