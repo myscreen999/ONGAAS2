@@ -40,11 +40,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     fullName: '',
     carNumber: '',
     phoneNumber: '',
-    email: '',
     password: '',
     confirmPassword: '',
     insuranceStartDate: '',
-    insuranceEndDate: ''
+    insuranceEndDate: '',
+    profilePicture: null as File | null,
+    driversLicense: null as File | null
   });
 
   if (!isOpen) return null;
@@ -97,10 +98,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         fullName: signupData.fullName,
         carNumber: signupData.carNumber,
         phoneNumber: signupData.phoneNumber,
-        email: signupData.email,
         password: signupData.password,
         insuranceStartDate: signupData.insuranceStartDate,
-        insuranceEndDate: signupData.insuranceEndDate
+        insuranceEndDate: signupData.insuranceEndDate,
+        profilePicture: signupData.profilePicture,
+        driversLicense: signupData.driversLicense
       });
       
       // Show success message
@@ -111,6 +113,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileChange = (field: 'profilePicture' | 'driversLicense', file: File | null) => {
+    setSignupData(prev => ({ ...prev, [field]: file }));
   };
 
   return (
@@ -194,22 +200,39 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  البريد الإلكتروني
+                  الصورة الشخصية *
                 </label>
                 <div className="relative">
-                  <Mail className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+                  <Upload className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
                   <input
-                    type="email"
+                    type="file"
+                    accept="image/*"
                     required
                     className="form-input-modern pr-12"
-                    placeholder="example@email.com"
-                    value={signupData.email}
-                    onChange={(e) => setSignupData(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) => handleFileChange('profilePicture', e.target.files?.[0] || null)}
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">صورة واضحة للوجه (مطلوبة)</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  صورة رخصة السياقة *
+                </label>
+                <div className="relative">
+                  <Upload className="absolute right-4 top-4 h-5 w-5 text-gray-400" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    required
+                    className="form-input-modern pr-12"
+                    onChange={(e) => handleFileChange('driversLicense', e.target.files?.[0] || null)}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">صورة واضحة لرخصة السياقة (مطلوبة)</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     بداية التأمين
@@ -308,6 +331,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                   </>
                 )}
               </button>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <div className="bg-blue-500 rounded-full p-1 ml-3 mt-0.5">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-blue-800 font-medium mb-1">ملاحظة مهمة:</p>
+                    <p className="text-sm text-blue-700">
+                      سيتم مراجعة حسابك من قبل الإدارة قبل تفعيله. تأكد من رفع صور واضحة وصحيحة.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </form>
           ) : (
             /* Login Form */

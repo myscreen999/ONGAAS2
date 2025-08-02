@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
                 {/* User Info */}
                 <div className="flex items-center space-x-3 bg-gray-50 rounded-full px-4 py-2">
                   <img
-                    src={profile.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}&background=3B82F6&color=fff`}
+                    src={profile.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}&background=3B82F6&color=fff&size=40`}
                     alt={profile.full_name}
                     className="w-10 h-10 rounded-full border-2 border-white shadow-md"
                   />
@@ -125,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 px-4 py-2 bg-gray-50 rounded-lg">
                   <img
-                    src={profile.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}&background=3B82F6&color=fff`}
+                    src={profile.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}&background=3B82F6&color=fff&size=40`}
                     alt={profile.full_name}
                     className="w-10 h-10 rounded-full border-2 border-white shadow-md"
                   />
@@ -159,7 +159,7 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
                       onShowDashboard();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full btn-primary flex items-center justify-center space-x-2"
+                    className="w-full btn-primary flex items-center justify-center gap-2"
                   >
                     <User className="w-5 h-5" />
                     <span>لوحة التحكم</span>
@@ -171,7 +171,7 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
                     handleSignOut();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full btn-secondary flex items-center justify-center space-x-2"
+                  className="w-full btn-secondary flex items-center justify-center gap-2"
                 >
                   <LogOut className="w-5 h-5" />
                   <span>خروج</span>
@@ -183,7 +183,7 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
                   onShowAuth();
                   setIsMenuOpen(false);
                 }}
-                className="w-full btn-primary flex items-center justify-center space-x-2"
+                className="w-full btn-primary flex items-center justify-center gap-2"
               >
                 <User className="w-5 h-5" />
                 <span>تسجيل الدخول</span>

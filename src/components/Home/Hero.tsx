@@ -86,14 +86,14 @@ const Hero: React.FC<HeroProps> = ({ onShowAuth }) => {
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16 animate-slide-up" style={{animationDelay: '0.8s'}}>
             <button 
               onClick={handleJoinMembership}
-              className="btn-primary text-lg px-10 py-4 shadow-2xl"
+              className="btn-primary text-lg px-10 py-4 shadow-2xl hover:scale-105 transform transition-all duration-300"
             >
               <Users className="w-5 h-5 inline ml-2" />
               انضم لعضويتنا
             </button>
             <button 
               onClick={handleExploreServices}
-              className="px-10 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300 shadow-lg transform hover:-translate-y-1 text-lg"
+              className="px-10 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300 shadow-lg transform hover:-translate-y-1 hover:scale-105 text-lg"
             >
               <ArrowDown className="w-5 h-5 inline ml-2" />
               تعرف على خدماتنا
