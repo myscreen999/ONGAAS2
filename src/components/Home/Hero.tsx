@@ -146,6 +146,7 @@ const Hero: React.FC<HeroProps> = ({ onShowAuth }) => {
         </div>
       </div>
     </div>
+  </section>
   );
 };
 
