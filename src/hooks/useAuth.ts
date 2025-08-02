@@ -92,9 +92,9 @@ export const useAuth = () => {
   const fetchUserProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('app_users')
         .select('*')
-        .eq('user_id', userId)
+        .eq('id', userId)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -114,7 +114,7 @@ export const useAuth = () => {
     try {
       // Find profile by car number
       const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
+        .from('app_users')
         .select('*')
         .eq('car_number', carNumber)
         .single();
@@ -156,9 +156,9 @@ export const useAuth = () => {
 
       // Check if user is admin
       const { data: profileData } = await supabase
-        .from('profiles')
+        .from('app_users')
         .select('*')
-        .eq('user_id', data.user.id)
+        .eq('id', data.user.id)
         .single();
 
       if (!profileData?.is_admin) {
@@ -184,7 +184,7 @@ export const useAuth = () => {
     try {
       // Check for existing car number
       const { data: existingProfile } = await supabase
-        .from('profiles')
+        .from('app_users')
         .select('car_number')
         .eq('car_number', userData.carNumber)
         .single();
@@ -215,12 +215,13 @@ export const useAuth = () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const { error: profileError } = await supabase
-          .from('profiles')
+          .from('app_users')
           .insert({
-            user_id: data.user.id,
+            id: data.user.id,
             full_name: userData.fullName,
             car_number: userData.carNumber,
             phone_number: userData.phoneNumber,
+            email: email,
             insurance_start_date: userData.insuranceStartDate,
             insurance_end_date: userData.insuranceEndDate,
             is_verified: false,
@@ -250,7 +251,7 @@ export const useAuth = () => {
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('app_users')
         .update({
           ...updates,
           updated_at: new Date().toISOString()
@@ -273,7 +274,7 @@ export const useAuth = () => {
   const getAllUsers = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('app_users')
         .select('*')
         .eq('is_admin', false)
         .order('created_at', { ascending: false });
@@ -292,7 +293,7 @@ export const useAuth = () => {
   const verifyUser = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('app_users')
         .update({ 
           is_verified: true,
           updated_at: new Date().toISOString()
@@ -317,7 +318,7 @@ export const useAuth = () => {
         .from('posts')
         .select(`
           *,
-          profiles!posts_created_by_fkey(full_name)
+          app_users!posts_created_by_fkey(full_name)
         `)
         .order('created_at', { ascending: false });
 
@@ -327,7 +328,7 @@ export const useAuth = () => {
 
       return (data || []).map(post => ({
         ...post,
-        author_name: post.profiles?.full_name || 'مستخدم غير معروف'
+        author_name: post.app_users?.full_name || 'مستخدم غير معروف'
       }));
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -357,7 +358,7 @@ export const useAuth = () => {
         })
         .select(`
           *,
-          profiles!posts_created_by_fkey(full_name)
+          app_users!posts_created_by_fkey(full_name)
         `)
         .single();
 
@@ -367,7 +368,7 @@ export const useAuth = () => {
 
       return {
         ...data,
-        author_name: data.profiles?.full_name || profile.full_name
+        author_name: data.app_users?.full_name || profile.full_name
       };
     } catch (error) {
       throw error;
@@ -392,7 +393,7 @@ export const useAuth = () => {
         .eq('id', postId)
         .select(`
           *,
-          profiles!posts_created_by_fkey(full_name)
+          app_users!posts_created_by_fkey(full_name)
         `)
         .single();
 
@@ -402,7 +403,7 @@ export const useAuth = () => {
 
       return {
         ...data,
-        author_name: data.profiles?.full_name || 'مستخدم غير معروف'
+        author_name: data.app_users?.full_name || 'مستخدم غير معروف'
       };
     } catch (error) {
       throw error;
@@ -436,7 +437,7 @@ export const useAuth = () => {
         .from('comments')
         .select(`
           *,
-          profiles!comments_user_id_fkey(full_name)
+          app_users!comments_user_id_fkey(full_name)
         `)
         .eq('post_id', postId)
         .order('created_at', { ascending: false });
@@ -447,7 +448,7 @@ export const useAuth = () => {
 
       return (data || []).map(comment => ({
         ...comment,
-        author_name: comment.profiles?.full_name || 'مستخدم غير معروف'
+        author_name: comment.app_users?.full_name || 'مستخدم غير معروف'
       }));
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -470,7 +471,7 @@ export const useAuth = () => {
         })
         .select(`
           *,
-          profiles!comments_user_id_fkey(full_name)
+          app_users!comments_user_id_fkey(full_name)
         `)
         .single();
 
@@ -480,7 +481,7 @@ export const useAuth = () => {
 
       return {
         ...data,
-        author_name: data.profiles?.full_name || profile.full_name
+        author_name: data.app_users?.full_name || profile.full_name
       };
     } catch (error) {
       throw error;
