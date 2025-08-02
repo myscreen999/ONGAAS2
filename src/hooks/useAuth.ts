@@ -676,6 +676,10 @@ export const useAuth = () => {
       let query = supabase.from('claims').select('*');
       
       if (!profile?.is_admin) {
+        // For non-admin users, ensure profile and profile.id exist
+        if (!profile || !profile.id) {
+          return [];
+        }
         query = query.eq('user_id', profile?.id);
       }
 
@@ -693,7 +697,7 @@ export const useAuth = () => {
   };
 
   const getUserClaims = async () => {
-    if (!profile) return [];
+    if (!profile || !profile.id) return [];
 
     try {
       const { data, error } = await supabase
