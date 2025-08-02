@@ -192,7 +192,6 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
           </div>
         )}
         </div>
-      </div>
     </header>
   );
 };
