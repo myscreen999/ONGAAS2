@@ -70,13 +70,15 @@ export const useAuth = () => {
         // Test Supabase connection first
         const connectionTest = await testSupabaseConnection();
         if (!connectionTest.connected) {
-          console.error('Supabase connection failed:', connectionTest.error);
+          console.error('❌ Supabase connection failed:', connectionTest.error);
           setConnectionError(connectionTest.error || 'فشل الاتصال بقاعدة البيانات');
           if (mounted) {
             setLoading(false);
           }
           return;
         }
+        
+        console.log('✅ Supabase connection established successfully');
         
         // Get initial session with timeout
         const sessionPromise = supabase.auth.getSession();

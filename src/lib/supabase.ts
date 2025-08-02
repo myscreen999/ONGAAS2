@@ -6,11 +6,20 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // Check if we have valid Supabase credentials
 const hasValidCredentials = supabaseUrl && 
   supabaseAnonKey && 
+  supabaseUrl.startsWith('https://') &&
+  supabaseUrl.includes('.supabase.co') &&
   supabaseUrl !== 'https://placeholder.supabase.co' && 
-  supabaseAnonKey !== 'placeholder-key';
+  supabaseAnonKey !== 'placeholder-key' &&
+  supabaseAnonKey.length > 20;
+
+// Log credential status for debugging
+console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Missing');
+console.log('Supabase Key:', supabaseAnonKey ? 'Set' : 'Missing');
+console.log('Valid credentials:', hasValidCredentials);
 
 if (!hasValidCredentials) {
-  console.warn('Supabase credentials not configured properly. Using fallback mode.');
+  console.warn('⚠️ Supabase credentials not configured properly.');
+  console.warn('Please check your .env file and ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set correctly.');
 }
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
@@ -43,21 +52,37 @@ export const supabase = createClient(
 export const testSupabaseConnection = async () => {
   try {
     if (!hasValidCredentials) {
-      return { connected: false, error: 'Invalid credentials' };
+      return { 
+        connected: false, 
+        error: 'بيانات الاعتماد غير صحيحة - تحقق من متغيرات البيئة VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY' 
+      };
     }
     
-    const { data, error } = await supabase
-      .from('app_users')
-      .select('count')
-      .limit(1);
+    // Test connection with a simple query
+    const { data, error } = await Promise.race([
+      supabase.from('app_users').select('count').limit(1),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout')), 5000)
+      )
+    ]) as any;
       
     if (error) {
-      return { connected: false, error: error.message };
+      console.error('Supabase connection test failed:', error);
+      return { 
+        connected: false, 
+        error: `فشل الاتصال بقاعدة البيانات: ${error.message}` 
+      };
     }
     
+    console.log('✅ Supabase connection successful');
     return { connected: true };
   } catch (error) {
-    return { connected: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    console.error('Supabase connection error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'خطأ غير معروف';
+    return { 
+      connected: false, 
+      error: `خطأ في الاتصال: ${errorMessage}` 
+    };
   }
 };
 
