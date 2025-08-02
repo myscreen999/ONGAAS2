@@ -211,7 +211,9 @@ export const useAuth = () => {
       }
 
       if (data.user) {
-        // Create profile
+        // Create profile - wait a bit to ensure auth user is created
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -227,6 +229,9 @@ export const useAuth = () => {
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
+          // If profile creation fails, try to clean up the auth user
+          await supabase.auth.admin.deleteUser(data.user.id);
+          throw new Error('فشل في إنشاء الملف الشخصي');
         }
       }
 
