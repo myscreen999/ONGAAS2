@@ -93,6 +93,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       return;
     }
 
+    if (signupData.password.length < 6) {
+      setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      setLoading(false);
+      return;
+    }
+
     try {
       await signUp({
         fullName: signupData.fullName,
@@ -106,9 +112,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       });
       
       // Show success message
-      alert('تم إنشاء الحساب بنجاح! مرحباً بك في ONG A.A.S');
+      alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول');
       onClose();
     } catch (err: any) {
+      console.error('Signup error:', err);
       setError(err.message || 'حدث خطأ في إنشاء الحساب');
     } finally {
       setLoading(false);

@@ -15,11 +15,16 @@ export const supabase = createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
+      detectSessionInUrl: false, // Disable URL session detection for preview
+      flowType: 'pkce' // Use PKCE flow for better security
     },
     global: {
       headers: {
         'X-Client-Info': 'ong-aas-web'
       }
+    },
+    db: {
+      schema: 'public'
     }
   }
 );
