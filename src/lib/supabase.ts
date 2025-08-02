@@ -156,12 +156,23 @@ export type Database = {
         Row: {
           id: string;
           post_id: string;
-          user_id: string;
-// Basic validation
           content: string;
-if (!supabaseUrl || !supabaseAnonKey) {
+          created_at: string;
         };
-  console.error('❌ Supabase credentials missing. Please check your .env file.');
+        Insert: {
+          id?: string;
+          post_id: string;
+          user_id: string;
+          content: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          post_id?: string;
+          user_id?: string;
+          content?: string;
+          created_at?: string;
+        };
       };
 }
     };
