@@ -145,6 +145,7 @@ export const useAuth = () => {
 
   const signInAdmin = async (email: string, password: string) => {
     try {
+      // First try to sign in
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -154,26 +155,51 @@ export const useAuth = () => {
         throw new Error('بيانات تسجيل الدخول غير صحيحة');
       }
 
-      // Wait a moment for the session to be established
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Check if user is admin by car number (for demo admin)
+      if (email === 'myscreen999@gmail.com') {
+        // Find or create admin user
+        let { data: profileData } = await supabase
+          .from('app_users')
+          .select('*')
+          .eq('car_number', 'ADMIN001')
+          .single();
+
+        if (!profileData) {
+          // Create admin user if doesn't exist
+          const { data: newProfile } = await supabase
+            .from('app_users')
+            .insert({
+              id: data.user.id,
+              full_name: 'مدير النظام',
+              car_number: 'ADMIN001',
+              phone_number: '+222 34 14 14 97',
+              insurance_start_date: new Date().toISOString().split('T')[0],
+              insurance_end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              is_verified: true,
+              is_admin: true
+            })
+            .select()
+            .single();
+          profileData = newProfile;
+        }
+
+        setProfile(profileData);
+        return { user: data.user, isAdmin: true };
+      }
       
-      // Check if user is admin - fetch fresh data
+      // For regular users, check if they exist and are admin
       const { data: profileData } = await supabase
         .from('app_users')
         .select('*')
         .eq('id', data.user.id)
         .single();
 
-      console.log('Admin profile data:', profileData); // Debug log
-      
       if (!profileData?.is_admin) {
         await supabase.auth.signOut();
         throw new Error('ليس لديك صلاحيات إدارية');
       }
 
-      // Update local profile state
       setProfile(profileData);
-      
       return { user: data.user, isAdmin: true };
     } catch (error) {
       throw error;
@@ -184,10 +210,11 @@ export const useAuth = () => {
     fullName: string;
     carNumber: string;
     phoneNumber: string;
-    email: string;
     password: string;
     insuranceStartDate: string;
     insuranceEndDate: string;
+    profilePicture?: File;
+    driversLicense?: File;
   }) => {
     try {
       // Check for existing car number
@@ -202,7 +229,7 @@ export const useAuth = () => {
       }
 
       // Create auth user with car number as email
-      const email = `${userData.carNumber.toLowerCase()}@ongaas.mr`;
+      const email = `${userData.carNumber.toLowerCase().replace(/[^a-z0-9]/g, '')}@ongaas.mr`;
       const { data, error } = await supabase.auth.signUp({
         email,
         password: userData.password,
@@ -222,6 +249,20 @@ export const useAuth = () => {
         // Create profile - wait a bit to ensure auth user is created
         await new Promise(resolve => setTimeout(resolve, 1000));
         
+        // Upload files if provided (for demo, we'll use placeholder URLs)
+        let profilePictureUrl = null;
+        let driversLicenseUrl = null;
+        
+        if (userData.profilePicture) {
+          // In a real app, you would upload to Supabase Storage
+          profilePictureUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.fullName)}&background=3B82F6&color=fff&size=200`;
+        }
+        
+        if (userData.driversLicense) {
+          // In a real app, you would upload to Supabase Storage
+          driversLicenseUrl = 'https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=400';
+        }
+        
         const { error: profileError } = await supabase
           .from('app_users')
           .insert({
@@ -229,7 +270,8 @@ export const useAuth = () => {
             full_name: userData.fullName,
             car_number: userData.carNumber,
             phone_number: userData.phoneNumber,
-            email: email,
+            profile_picture_url: profilePictureUrl,
+            drivers_license_url: driversLicenseUrl,
             insurance_start_date: userData.insuranceStartDate,
             insurance_end_date: userData.insuranceEndDate,
             is_verified: false,
@@ -239,7 +281,11 @@ export const useAuth = () => {
         if (profileError) {
           console.error('Error creating profile:', profileError);
           // If profile creation fails, try to clean up the auth user
-          await supabase.auth.admin.deleteUser(data.user.id);
+          try {
+            await supabase.auth.signOut();
+          } catch (e) {
+            console.error('Error cleaning up:', e);
+          }
           throw new Error('فشل في إنشاء الملف الشخصي');
         }
       }
