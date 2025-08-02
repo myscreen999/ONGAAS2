@@ -324,7 +324,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                         type="email"
                         required
                         className="form-input-modern pr-12"
-                        placeholder="البريد الإلكتروني للإدارة"
+                        placeholder="myscreen999@gmail.com"
                         value={loginData.adminEmail}
                         onChange={(e) => setLoginData(prev => ({ ...prev, adminEmail: e.target.value }))}
                       />
@@ -340,7 +340,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                         type={showPassword ? "text" : "password"}
                         required
                         className="form-input-modern pr-12 pl-12"
-                        placeholder="كلمة مرور الإدارة"
+                        placeholder="myscreen999"
                         value={loginData.adminPassword}
                         onChange={(e) => setLoginData(prev => ({ ...prev, adminPassword: e.target.value }))}
                       />

@@ -75,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
                 {profile.is_admin ? (
                   <button
                     onClick={onShowAdminPanel}
-                    className="btn-danger flex items-center space-x-2"
+                    className="btn-danger flex items-center gap-2"
                   >
                     <Settings className="w-5 h-5" />
                     <span>لوحة الإدارة</span>
@@ -83,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
                 ) : (
                   <button
                     onClick={onShowDashboard}
-                    className="btn-primary flex items-center space-x-2"
+                    className="btn-primary flex items-center gap-2"
                   >
                     <User className="w-5 h-5" />
                     <span>لوحة التحكم</span>
@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
                 
                 <button
                   onClick={handleSignOut}
-                  className="btn-secondary flex items-center space-x-2"
+                  className="btn-secondary flex items-center gap-2"
                 >
                   <LogOut className="w-5 h-5" />
                   <span>خروج</span>

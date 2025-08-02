@@ -154,18 +154,26 @@ export const useAuth = () => {
         throw new Error('بيانات تسجيل الدخول غير صحيحة');
       }
 
-      // Check if user is admin
+      // Wait a moment for the session to be established
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Check if user is admin - fetch fresh data
       const { data: profileData } = await supabase
         .from('app_users')
         .select('*')
         .eq('id', data.user.id)
         .single();
 
+      console.log('Admin profile data:', profileData); // Debug log
+      
       if (!profileData?.is_admin) {
         await supabase.auth.signOut();
         throw new Error('ليس لديك صلاحيات إدارية');
       }
 
+      // Update local profile state
+      setProfile(profileData);
+      
       return { user: data.user, isAdmin: true };
     } catch (error) {
       throw error;
