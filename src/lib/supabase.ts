@@ -26,7 +26,6 @@ export type Database = {
       app_users: {
         Row: {
           id: string;
-          email: string;
           full_name: string;
           car_number: string;
           phone_number: string;
@@ -41,7 +40,6 @@ export type Database = {
         };
         Insert: {
           id?: string;
-          email: string;
           full_name: string;
           car_number: string;
           phone_number: string;
@@ -56,7 +54,6 @@ export type Database = {
         };
         Update: {
           id?: string;
-          email?: string;
           full_name?: string;
           car_number?: string;
           phone_number?: string;
