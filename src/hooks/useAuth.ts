@@ -356,12 +356,19 @@ export const useAuth = () => {
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!profile) return;
 
-    const updatedProfile = { ...profile, ...updates, updated_at: new Date().toISOString() };
+    const updatedProfile = { 
+      ...profile, 
+      ...updates, 
+      updated_at: new Date().toISOString() 
+    };
     
     // Update in mock data
     const index = mockUsers.findIndex(user => user.id === profile.id);
     if (index !== -1) {
       mockUsers[index] = updatedProfile;
+      
+      // Save to localStorage for persistence
+      localStorage.setItem('mockUsers', JSON.stringify(mockUsers));
     }
     
     setProfile(updatedProfile);
@@ -378,6 +385,9 @@ export const useAuth = () => {
     const index = mockUsers.findIndex(user => user.id === userId);
     if (index !== -1) {
       mockUsers[index] = { ...mockUsers[index], is_verified: true, updated_at: new Date().toISOString() };
+      
+      // Save to localStorage for persistence
+      localStorage.setItem('mockUsers', JSON.stringify(mockUsers));
       return mockUsers[index];
     }
     throw new Error('المستخدم غير موجود');
@@ -409,6 +419,9 @@ export const useAuth = () => {
     };
 
     mockPosts.unshift(newPost);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('mockPosts', JSON.stringify(mockPosts));
     return newPost;
   };
 
@@ -423,6 +436,9 @@ export const useAuth = () => {
     }
 
     mockPosts[index] = { ...mockPosts[index], ...updates };
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('mockPosts', JSON.stringify(mockPosts));
     return mockPosts[index];
   };
 
@@ -440,6 +456,10 @@ export const useAuth = () => {
     mockComments = mockComments.filter(comment => comment.post_id !== postId);
     
     mockPosts.splice(index, 1);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('mockPosts', JSON.stringify(mockPosts));
+    localStorage.setItem('mockComments', JSON.stringify(mockComments));
     return true;
   };
 
@@ -464,6 +484,9 @@ export const useAuth = () => {
     };
 
     mockComments.push(newComment);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('mockComments', JSON.stringify(mockComments));
     return newComment;
   };
 
@@ -515,6 +538,9 @@ export const useAuth = () => {
     };
 
     mockClaims.push(newClaim);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('mockClaims', JSON.stringify(mockClaims));
     return newClaim;
   };
 
@@ -541,9 +567,50 @@ export const useAuth = () => {
       updated_at: new Date().toISOString()
     };
 
+    // Save to localStorage for persistence
+    localStorage.setItem('mockClaims', JSON.stringify(mockClaims));
     return mockClaims[index];
   };
 
+  // Load data from localStorage on initialization
+  React.useEffect(() => {
+    const savedUsers = localStorage.getItem('mockUsers');
+    const savedPosts = localStorage.getItem('mockPosts');
+    const savedComments = localStorage.getItem('mockComments');
+    const savedClaims = localStorage.getItem('mockClaims');
+    
+    if (savedUsers) {
+      try {
+        mockUsers = JSON.parse(savedUsers);
+      } catch (error) {
+        console.error('Error loading saved users:', error);
+      }
+    }
+    
+    if (savedPosts) {
+      try {
+        mockPosts = JSON.parse(savedPosts);
+      } catch (error) {
+        console.error('Error loading saved posts:', error);
+      }
+    }
+    
+    if (savedComments) {
+      try {
+        mockComments = JSON.parse(savedComments);
+      } catch (error) {
+        console.error('Error loading saved comments:', error);
+      }
+    }
+    
+    if (savedClaims) {
+      try {
+        mockClaims = JSON.parse(savedClaims);
+      } catch (error) {
+        console.error('Error loading saved claims:', error);
+      }
+    }
+  }, []);
   return {
     user,
     profile,

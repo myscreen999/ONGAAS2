@@ -102,6 +102,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         insuranceStartDate: signupData.insuranceStartDate,
         insuranceEndDate: signupData.insuranceEndDate
       });
+      
+      // Show success message
+      alert('تم إنشاء الحساب بنجاح! مرحباً بك في ONG A.A.S');
       onClose();
     } catch (err: any) {
       setError(err.message || 'حدث خطأ في إنشاء الحساب');
