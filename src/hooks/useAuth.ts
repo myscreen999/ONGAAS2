@@ -72,8 +72,6 @@ export const useAuth = () => {
         
         if (error) {
           console.error('Error getting session:', error);
-          setLoading(false);
-          return;
         }
         
         if (session?.user) {
@@ -125,7 +123,7 @@ export const useAuth = () => {
         .from('app_users')
         .select('*')
         .eq('id', userId)
-        .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no data
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error);
@@ -135,7 +133,6 @@ export const useAuth = () => {
       if (data) {
         setProfile(data);
       } else {
-        // If no profile found, set profile to null
         setProfile(null);
       }
     } catch (error) {
@@ -146,7 +143,6 @@ export const useAuth = () => {
 
   const signInWithCarNumber = async (carNumber: string, password: string) => {
     try {
-      // التحقق من صحة البيانات المدخلة
       if (!carNumber || !carNumber.trim()) {
         throw new Error('يرجى إدخال رقم السيارة');
       }
@@ -155,7 +151,6 @@ export const useAuth = () => {
         throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
       }
 
-      // Check if user exists in our database
       const { data: profileData, error: profileError } = await supabase
         .from('app_users')
         .select('*')
@@ -174,7 +169,6 @@ export const useAuth = () => {
         throw new Error('رقم السيارة غير مسجل في النظام');
       }
 
-      // Create email from car number
       const cleanCarNumber = carNumber.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
       if (!cleanCarNumber) {
         throw new Error('رقم السيارة غير صالح');
@@ -182,20 +176,17 @@ export const useAuth = () => {
       
       const email = `${cleanCarNumber}@ongaas.mr`;
       
-      // Try to sign in
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      // If auth user doesn't exist, create it
       if (error && (error.message.includes('Invalid login credentials') || 
                    error.message.includes('Email not confirmed') ||
                    error.message.includes('User not found'))) {
         
         console.log('Creating auth user for existing profile:', profileData.car_number);
         
-        // Create auth user
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -217,7 +208,6 @@ export const useAuth = () => {
         }
 
         if (signUpData.user) {
-          // Update profile with auth user ID
           const { error: updateError } = await supabase
             .from('app_users')
             .update({ id: signUpData.user.id })
@@ -227,7 +217,6 @@ export const useAuth = () => {
             console.error('Error updating profile with auth ID:', updateError);
           }
 
-          // Sign in again
           const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
             email,
             password
@@ -241,7 +230,6 @@ export const useAuth = () => {
           return { user: retryData.user, isAdmin: profileData.is_admin || false };
         }
       } else if (error) {
-        // Handle other auth errors
         if (error.message.includes('Invalid login credentials')) {
           throw new Error('كلمة المرور غير صحيحة');
         } else if (error.message.includes('Email not confirmed')) {

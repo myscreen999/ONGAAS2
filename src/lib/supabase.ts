@@ -17,14 +17,6 @@ export const supabase = createClient(
       autoRefreshToken: true,
       detectSessionInUrl: false
     },
-    global: {
-      headers: {
-        'X-Client-Info': 'ong-aas-web'
-      }
-    },
-    db: {
-      schema: 'public'
-    }
   }
 );
 
@@ -165,24 +157,13 @@ export type Database = {
           id: string;
           post_id: string;
           user_id: string;
+// Basic validation
           content: string;
-          created_at: string;
+if (!supabaseUrl || !supabaseAnonKey) {
         };
-        Insert: {
-          id?: string;
-          post_id: string;
-          user_id: string;
-          content: string;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          post_id?: string;
-          user_id?: string;
-          content?: string;
-          created_at?: string;
-        };
+  console.error('❌ Supabase credentials missing. Please check your .env file.');
       };
+}
     };
   };
 };

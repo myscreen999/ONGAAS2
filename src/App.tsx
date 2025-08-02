@@ -52,10 +52,10 @@ function App() {
   // Show loading screen
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center" style={{minHeight: '100vh'}}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6" style={{animationDuration: '1s'}}></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
             <div className="absolute inset-0 rounded-full bg-blue-100 opacity-20 animate-pulse"></div>
           </div>
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg">
@@ -71,7 +71,7 @@ function App() {
             <p className="text-gray-600">جارٍ تحميل النظام...</p>
             <div className="mt-4">
               <div className="w-48 h-2 bg-gray-200 rounded-full mx-auto overflow-hidden">
-                <div className="h-full bg-blue-600 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                <div className="h-full bg-blue-600 rounded-full animate-pulse w-3/5"></div>
               </div>
             </div>
           </div>
