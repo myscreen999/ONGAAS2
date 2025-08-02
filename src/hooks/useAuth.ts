@@ -62,51 +62,99 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
+    let mounted = true;
+    
+    const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Get initial session with timeout
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Session timeout')), 5000)
+        );
+        
+        const { data: { session }, error } = await Promise.race([
+          sessionPromise,
+          timeoutPromise
+        ]) as any;
+        
+        if (!mounted) return;
+        
         if (error) {
           console.error('Error getting session:', error);
-          setLoading(false);
           return;
         }
         
         if (session?.user) {
           setUser(session.user);
-          await fetchUserProfile(session.user.id);
+          // Fetch profile with timeout
+          try {
+            await Promise.race([
+              fetchUserProfile(session.user.id),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Profile timeout')), 3000)
+              )
+            ]);
+          } catch (profileError) {
+            console.error('Profile fetch timeout or error:', profileError);
+            // Continue without profile for now
+          }
         }
       } catch (error) {
-        console.error('Error in getInitialSession:', error);
+        console.error('Error in initializeAuth:', error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
-    getInitialSession();
-
+    initializeAuth();
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        await fetchUserProfile(session.user.id);
-      } else {
-        setUser(null);
-        setProfile(null);
+      if (!mounted) return;
+      
+      try {
+        if (session?.user) {
+          setUser(session.user);
+          // Fetch profile with timeout for auth changes too
+          try {
+            await Promise.race([
+              fetchUserProfile(session.user.id),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Profile timeout')), 3000)
+              )
+            ]);
+          } catch (profileError) {
+            console.error('Profile fetch timeout on auth change:', profileError);
+          }
+        } else {
+          setUser(null);
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error('Error in auth state change:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
+    if (!userId) return;
+    
     try {
       const { data, error } = await supabase
         .from('app_users')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no data
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error);
@@ -115,9 +163,13 @@ export const useAuth = () => {
 
       if (data) {
         setProfile(data);
+      } else {
+        // If no profile found, set profile to null
+        setProfile(null);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      setProfile(null);
     }
   };
 

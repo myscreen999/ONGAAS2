@@ -9,16 +9,34 @@ const Claims: React.FC = () => {
   const { getAllClaims } = useAuth();
 
   useEffect(() => {
-    fetchClaims();
+    let mounted = true;
+    
+    const loadClaims = async () => {
+      try {
+        await fetchClaims();
+      } catch (error) {
+        console.error('Error loading claims:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    loadClaims();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const fetchClaims = async () => {
     try {
       const claimsData = await getAllClaims();
       // Show only the latest 5 claims for homepage
-      setClaims(claimsData.slice(0, 5));
+      setClaims((claimsData || []).slice(0, 5));
     } catch (error) {
       console.error('Error fetching claims:', error);
+      setClaims([]);
     } finally {
       setLoading(false);
     }

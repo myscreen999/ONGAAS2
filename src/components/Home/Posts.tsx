@@ -12,22 +12,46 @@ const Posts: React.FC = () => {
   const { user, profile, getAllPosts, getComments, addComment } = useAuth();
 
   useEffect(() => {
-    fetchPosts();
+    let mounted = true;
+    
+    const loadPosts = async () => {
+      try {
+        await fetchPosts();
+      } catch (error) {
+        console.error('Error loading posts:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    loadPosts();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const fetchPosts = async () => {
     try {
       const postsData = await getAllPosts();
-      setPosts(postsData);
+      setPosts(postsData || []);
       
       // Load comments for each post
       const comments: Record<string, Comment[]> = {};
-      for (const post of postsData) {
-        comments[post.id] = await getComments(post.id);
+      for (const post of (postsData || [])) {
+        try {
+          comments[post.id] = await getComments(post.id);
+        } catch (error) {
+          console.error(`Error loading comments for post ${post.id}:`, error);
+          comments[post.id] = [];
+        }
       }
       setCommentsData(comments);
     } catch (error) {
       console.error('Error fetching posts:', error);
+      setPosts([]);
+      setCommentsData({});
     } finally {
       setLoading(false);
     }
