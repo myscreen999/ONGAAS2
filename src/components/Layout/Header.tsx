@@ -30,6 +30,10 @@ const Header: React.FC<HeaderProps> = ({ onShowAuth, onShowDashboard, onShowAdmi
               src="https://i.postimg.cc/nzFw0fRf/5.png" 
               alt="ONG A.A.S" 
               className="h-14 w-auto"
+              onError={(e) => {
+                console.log('Header logo failed to load');
+                e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNTYiIHZpZXdCb3g9IjAgMCA1NiA1NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iMjgiIGZpbGw9IiMzQjgyRjYiLz4KPHRleHQgeD0iMjgiIHk9IjM0IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+T05HPC90ZXh0Pgo8L3N2Zz4K';
+              }}
             />
             <div className="ml-4 hidden sm:block">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">

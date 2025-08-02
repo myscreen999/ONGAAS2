@@ -4,8 +4,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure proper font loading */
+@font-face {
+  font-family: 'Cairo';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Droid Arabic Kufi';
+  font-display: swap;
+}
+
 * {
   font-family: 'Cairo', 'Droid Arabic Kufi', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Prevent layout shifts */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 html[lang="ar"] {

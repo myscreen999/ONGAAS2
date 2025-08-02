@@ -19,7 +19,7 @@ const Hero: React.FC<HeroProps> = ({ onShowAuth }) => {
   };
 
   return (
-    <div className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white overflow-hidden min-h-screen flex items-center">
+    <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white overflow-hidden min-h-screen flex items-center">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-black opacity-30"></div>
       
@@ -46,6 +46,10 @@ const Hero: React.FC<HeroProps> = ({ onShowAuth }) => {
                 src="https://i.postimg.cc/nzFw0fRf/5.png" 
                 alt="ONG A.A.S" 
                 className="h-24 w-auto"
+                onError={(e) => {
+                  console.log('Logo failed to load');
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </div>
           </div>
