@@ -3,20 +3,24 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables');
-  // Don't throw error, create a mock client instead
-}
+// Check if we have valid Supabase credentials
+const hasValidCredentials = supabaseUrl && 
+  supabaseAnonKey && 
+  supabaseUrl !== 'https://placeholder.supabase.co' && 
+  supabaseAnonKey !== 'placeholder-key';
 
+if (!hasValidCredentials) {
+  console.warn('Supabase credentials not configured properly. Using fallback mode.');
+}
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key',
   {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: false, // Disable URL session detection for preview
-      flowType: 'pkce' // Use PKCE flow for better security
+      detectSessionInUrl: false,
+      flowType: 'pkce'
     },
     global: {
       headers: {
@@ -25,9 +29,37 @@ export const supabase = createClient(
     },
     db: {
       schema: 'public'
+    },
+    // Add retry and timeout settings
+    realtime: {
+      params: {
+        eventsPerSecond: 2
+      }
     }
   }
 );
+
+// Add connection test function
+export const testSupabaseConnection = async () => {
+  try {
+    if (!hasValidCredentials) {
+      return { connected: false, error: 'Invalid credentials' };
+    }
+    
+    const { data, error } = await supabase
+      .from('app_users')
+      .select('count')
+      .limit(1);
+      
+    if (error) {
+      return { connected: false, error: error.message };
+    }
+    
+    return { connected: true };
+  } catch (error) {
+    return { connected: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+};
 
 export type Database = {
   public: {

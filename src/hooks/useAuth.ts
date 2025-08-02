@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase, Database } from '../lib/supabase';
+import { supabase, Database, testSupabaseConnection } from '../lib/supabase';
 
 export interface Profile {
   id: string;
@@ -60,12 +60,24 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
     
     const initializeAuth = async () => {
       try {
+        // Test Supabase connection first
+        const connectionTest = await testSupabaseConnection();
+        if (!connectionTest.connected) {
+          console.error('Supabase connection failed:', connectionTest.error);
+          setConnectionError(connectionTest.error || 'فشل الاتصال بقاعدة البيانات');
+          if (mounted) {
+            setLoading(false);
+          }
+          return;
+        }
+        
         // Get initial session with timeout
         const sessionPromise = supabase.auth.getSession();
         const timeoutPromise = new Promise((_, reject) => 
@@ -81,6 +93,7 @@ export const useAuth = () => {
         
         if (error) {
           console.error('Error getting session:', error);
+          setConnectionError('خطأ في جلب الجلسة');
           return;
         }
         
@@ -101,6 +114,11 @@ export const useAuth = () => {
         }
       } catch (error) {
         console.error('Error in initializeAuth:', error);
+        if (error instanceof Error && error.message.includes('Failed to fetch')) {
+          setConnectionError('فشل الاتصال بالخادم. تحقق من اتصال الإنترنت.');
+        } else {
+          setConnectionError('خطأ في تهيئة النظام');
+        }
       } finally {
         if (mounted) {
           setLoading(false);
@@ -175,6 +193,12 @@ export const useAuth = () => {
 
   const signInWithCarNumber = async (carNumber: string, password: string) => {
     try {
+      // Test connection first
+      const connectionTest = await testSupabaseConnection();
+      if (!connectionTest.connected) {
+        throw new Error(`فشل الاتصال بقاعدة البيانات: ${connectionTest.error}`);
+      }
+      
       // التحقق من صحة البيانات المدخلة
       if (!carNumber || !carNumber.trim()) {
         throw new Error('يرجى إدخال رقم السيارة');
@@ -185,14 +209,31 @@ export const useAuth = () => {
       }
 
       // First, check if user exists in our database
-      const { data: profileData, error: profileError } = await supabase
-        .from('app_users')
-        .select('*')
-        .eq('car_number', carNumber.trim())
-        .maybeSingle();
+      let profileData, profileError;
+      
+      try {
+        const result = await Promise.race([
+          supabase
+            .from('app_users')
+            .select('*')
+            .eq('car_number', carNumber.trim())
+            .maybeSingle(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Database timeout')), 10000)
+          )
+        ]) as any;
+        
+        profileData = result.data;
+        profileError = result.error;
+      } catch (timeoutError) {
+        throw new Error('انتهت مهلة الاتصال بقاعدة البيانات');
+      }
 
       if (profileError) {
         console.error('Error checking profile:', profileError);
+        if (profileError.message?.includes('Failed to fetch')) {
+          throw new Error('فشل الاتصال بقاعدة البيانات. تحقق من اتصال الإنترنت.');
+        }
         if (profileError.code === 'PGRST116') {
           throw new Error('رقم السيارة غير موجود في النظام');
         }
@@ -212,10 +253,24 @@ export const useAuth = () => {
       const email = `${cleanCarNumber}@ongaas.mr`;
       
       // Try to sign in first
-      let { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      let data, error;
+      
+      try {
+        const result = await Promise.race([
+          supabase.auth.signInWithPassword({
+            email,
+            password
+          }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Auth timeout')), 10000)
+          )
+        ]) as any;
+        
+        data = result.data;
+        error = result.error;
+      } catch (timeoutError) {
+        throw new Error('انتهت مهلة تسجيل الدخول');
+      }
 
       // If auth user doesn't exist, create it
       if (error && (error.message.includes('Invalid login credentials') || 
@@ -225,20 +280,37 @@ export const useAuth = () => {
         console.log('Creating auth user for existing profile:', profileData.car_number);
         
         // Create auth user
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: undefined,
-            data: {
-              full_name: profileData.full_name,
-              car_number: profileData.car_number
-            }
-          }
-        });
-
+        let signUpData, signUpError;
+        
+        try {
+          const result = await Promise.race([
+            supabase.auth.signUp({
+              email,
+              password,
+              options: {
+                emailRedirectTo: undefined,
+                data: {
+                  full_name: profileData.full_name,
+                  car_number: profileData.car_number
+                }
+              }
+            }),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('SignUp timeout')), 10000)
+            )
+          ]) as any;
+          
+          signUpData = result.data;
+          signUpError = result.error;
+        } catch (timeoutError) {
+          throw new Error('انتهت مهلة إنشاء الحساب');
+        }
+        
         if (signUpError) {
           console.error('Sign up error:', signUpError);
+          if (signUpError.message?.includes('Failed to fetch')) {
+            throw new Error('فشل الاتصال أثناء إنشاء الحساب');
+          }
           if (signUpError.message.includes('User already registered')) {
             throw new Error('كلمة المرور غير صحيحة');
           }
@@ -247,31 +319,51 @@ export const useAuth = () => {
 
         if (signUpData.user) {
           // Update profile with auth user ID
-          const { error: updateError } = await supabase
-            .from('app_users')
-            .update({ id: signUpData.user.id })
-            .eq('car_number', carNumber.trim());
-            
-          if (updateError) {
-            console.error('Error updating profile with auth ID:', updateError);
+          try {
+            const { error: updateError } = await Promise.race([
+              supabase
+                .from('app_users')
+                .update({ id: signUpData.user.id })
+                .eq('car_number', carNumber.trim()),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Update timeout')), 5000)
+              )
+            ]) as any;
+              
+            if (updateError) {
+              console.error('Error updating profile with auth ID:', updateError);
+            }
+          } catch (updateTimeoutError) {
+            console.error('Timeout updating profile:', updateTimeoutError);
           }
 
           // Try to sign in again
-          const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
+          try {
+            const result = await Promise.race([
+              supabase.auth.signInWithPassword({
+                email,
+                password
+              }),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Retry timeout')), 10000)
+              )
+            ]) as any;
 
-          if (retryError) {
-            console.error('Retry sign in error:', retryError);
-            throw new Error('كلمة المرور غير صحيحة');
+            if (result.error) {
+              console.error('Retry sign in error:', result.error);
+              throw new Error('كلمة المرور غير صحيحة');
+            }
+
+            data = result;
+          } catch (retryTimeoutError) {
+            throw new Error('انتهت مهلة إعادة تسجيل الدخول');
           }
-
-          data = retryData;
         }
       } else if (error) {
         // Handle other auth errors
-        if (error.message.includes('Invalid login credentials')) {
+        if (error.message?.includes('Failed to fetch')) {
+          throw new Error('فشل الاتصال أثناء تسجيل الدخول. تحقق من اتصال الإنترنت.');
+        } else if (error.message.includes('Invalid login credentials')) {
           throw new Error('كلمة المرور غير صحيحة');
         } else if (error.message.includes('Email not confirmed')) {
           throw new Error('البريد الإلكتروني غير مؤكد');
@@ -285,6 +377,9 @@ export const useAuth = () => {
       return { user: data.user, isAdmin: profileData.is_admin || false };
     } catch (error) {
       console.error('Sign in error:', error);
+      if (error instanceof Error && error.message.includes('Failed to fetch')) {
+        throw new Error('فشل الاتصال بالخادم. تحقق من اتصال الإنترنت وحاول مرة أخرى.');
+      }
       throw error;
     }
   };
@@ -862,6 +957,7 @@ export const useAuth = () => {
     user,
     profile,
     loading,
+    connectionError,
     signInWithCarNumber,
     signInAdmin,
     signUp,

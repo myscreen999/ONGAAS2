@@ -15,7 +15,7 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showUserDashboard, setShowUserDashboard] = useState(false);
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, connectionError } = useAuth();
 
   const handleShowAuth = (mode?: 'signup') => {
     setShowAuthModal(true);
@@ -49,6 +49,29 @@ function App() {
     };
   }, []);
 
+  // Show connection error if exists
+  if (connectionError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+          <div className="text-red-500 text-6xl mb-6">⚠️</div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">خطأ في الاتصال</h1>
+          <p className="text-gray-600 mb-6">{connectionError}</p>
+          <div className="space-y-4">
+            <button 
+              onClick={() => window.location.reload()}
+              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              إعادة المحاولة
+            </button>
+            <p className="text-sm text-gray-500">
+              تأكد من اتصال الإنترنت وإعدادات قاعدة البيانات
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center" style={{minHeight: '100vh'}}>
