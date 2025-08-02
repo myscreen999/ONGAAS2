@@ -169,7 +169,7 @@ const Stats: React.FC = () => {
             </p>
             <div className="flex justify-center items-center gap-4">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                {stat.icon}
+                <Star className="w-6 h-6 text-white" />
               </div>
               <div className="text-right">
                 <div className="font-bold text-gray-900">ONG A.A.S</div>
