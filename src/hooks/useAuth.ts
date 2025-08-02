@@ -58,17 +58,14 @@ export interface Claim {
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-    
     const initializeAuth = async () => {
       try {
+        setLoading(true);
         // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (!mounted) return;
         
         if (error) {
           console.error('Error getting session:', error);
@@ -81,9 +78,7 @@ export const useAuth = () => {
       } catch (error) {
         console.error('Error in initializeAuth:', error);
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
@@ -91,8 +86,6 @@ export const useAuth = () => {
     
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-      
       try {
         if (session?.user) {
           setUser(session.user);
@@ -103,15 +96,10 @@ export const useAuth = () => {
         }
       } catch (error) {
         console.error('Error in auth state change:', error);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
       }
     });
 
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, []);

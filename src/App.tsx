@@ -52,29 +52,10 @@ function App() {
   // Show loading screen
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
-            <div className="absolute inset-0 rounded-full bg-blue-100 opacity-20 animate-pulse"></div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg">
-            <img 
-              src="https://i.postimg.cc/nzFw0fRf/5.png" 
-              alt="ONG A.A.S" 
-              className="h-12 w-auto mx-auto mb-4"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            <h2 className="text-xl font-bold text-gray-800 mb-2">ONG A.A.S</h2>
-            <p className="text-gray-600">جارٍ تحميل النظام...</p>
-            <div className="mt-4">
-              <div className="w-48 h-2 bg-gray-200 rounded-full mx-auto overflow-hidden">
-                <div className="h-full bg-blue-600 rounded-full animate-pulse w-3/5"></div>
-              </div>
-            </div>
-          </div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جارٍ التحميل...</p>
         </div>
       </div>
     );
