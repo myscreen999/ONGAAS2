@@ -175,8 +175,22 @@ export const useAuth = () => {
 
   const signInWithCarNumber = async (carNumber: string, password: string) => {
     try {
+      // التحقق من صحة البيانات المدخلة
+      if (!carNumber || !carNumber.trim()) {
+        throw new Error('يرجى إدخال رقم السيارة');
+      }
+      
+      if (!password || password.length < 6) {
+        throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      }
+
       // Create email from car number
-      const email = `${carNumber.toLowerCase().replace(/[^a-z0-9]/g, '')}@ongaas.mr`;
+      const cleanCarNumber = carNumber.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!cleanCarNumber) {
+        throw new Error('رقم السيارة غير صالح');
+      }
+      
+      const email = `${cleanCarNumber}@ongaas.mr`;
       
       // Try to sign in first
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -185,24 +199,34 @@ export const useAuth = () => {
       });
 
       if (error) {
+        console.log('Auth sign in error:', error);
+        
         // If login fails, check if user exists in our database
         const { data: profileData, error: profileError } = await supabase
           .from('app_users')
           .select('*')
-          .eq('car_number', carNumber)
+          .eq('car_number', carNumber.trim())
           .maybeSingle();
 
         if (profileError) {
           console.error('Error checking profile:', profileError);
-          throw new Error('حدث خطأ في التحقق من البيانات');
+          if (profileError.code === 'PGRST116') {
+            throw new Error('رقم السيارة غير موجود في النظام');
+          }
+          throw new Error(`خطأ في قاعدة البيانات: ${profileError.message}`);
         }
 
         if (!profileData) {
-          throw new Error('رقم السيارة غير موجود');
+          throw new Error('رقم السيارة غير مسجل في النظام');
         }
 
         // If user exists in database but auth failed, try to create auth user
-        if (error.message.includes('Invalid login credentials') || error.message.includes('Email not confirmed')) {
+        if (error.message.includes('Invalid login credentials') || 
+            error.message.includes('Email not confirmed') ||
+            error.message.includes('User not found')) {
+          
+          console.log('Attempting to create auth user for existing profile');
+          
           // Try to sign up the user in auth system
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email,
@@ -218,15 +242,22 @@ export const useAuth = () => {
 
           if (signUpError) {
             console.error('Sign up error:', signUpError);
-            throw new Error('كلمة المرور غير صحيحة أو حدث خطأ في النظام');
+            if (signUpError.message.includes('User already registered')) {
+              throw new Error('كلمة المرور غير صحيحة');
+            }
+            throw new Error(`خطأ في إنشاء المصادقة: ${signUpError.message}`);
           }
 
           // Update the profile with the new auth user ID
           if (signUpData.user) {
-            await supabase
+            const { error: updateError } = await supabase
               .from('app_users')
               .update({ id: signUpData.user.id })
-              .eq('car_number', carNumber);
+              .eq('car_number', carNumber.trim());
+              
+            if (updateError) {
+              console.error('Error updating profile with auth ID:', updateError);
+            }
 
             // Now try to sign in again
             const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
@@ -235,13 +266,23 @@ export const useAuth = () => {
             });
 
             if (retryError) {
+              console.error('Retry sign in error:', retryError);
               throw new Error('كلمة المرور غير صحيحة');
             }
 
             return { user: retryData.user, isAdmin: profileData.is_admin };
           }
         } else {
-          throw new Error('كلمة المرور غير صحيحة');
+          // Handle other auth errors
+          if (error.message.includes('Invalid login credentials')) {
+            throw new Error('كلمة المرور غير صحيحة');
+          } else if (error.message.includes('Email not confirmed')) {
+            throw new Error('البريد الإلكتروني غير مؤكد');
+          } else if (error.message.includes('Too many requests')) {
+            throw new Error('محاولات كثيرة جداً، يرجى المحاولة لاحقاً');
+          } else {
+            throw new Error(`خطأ في تسجيل الدخول: ${error.message}`);
+          }
         }
       }
 
@@ -249,11 +290,12 @@ export const useAuth = () => {
       const { data: profileData, error: profileError } = await supabase
         .from('app_users')
         .select('*')
-        .eq('car_number', carNumber)
+        .eq('car_number', carNumber.trim())
         .maybeSingle();
 
       if (profileError) {
         console.error('Error fetching profile after login:', profileError);
+        // Don't throw error here, just log it
       }
 
       return { user: data.user, isAdmin: profileData?.is_admin || false };
@@ -337,16 +379,33 @@ export const useAuth = () => {
     driversLicense?: File;
   }) => {
     try {
+      // التحقق من صحة البيانات
+      if (!userData.fullName || !userData.fullName.trim()) {
+        throw new Error('يرجى إدخال الاسم الكامل');
+      }
+      
+      if (!userData.carNumber || !userData.carNumber.trim()) {
+        throw new Error('يرجى إدخال رقم السيارة');
+      }
+      
+      if (!userData.phoneNumber || !userData.phoneNumber.trim()) {
+        throw new Error('يرجى إدخال رقم الهاتف');
+      }
+      
+      if (!userData.password || userData.password.length < 6) {
+        throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      }
+
       // Check for existing car number
       const { data: existingProfile, error: checkError } = await supabase
         .from('app_users')
         .select('car_number')
-        .eq('car_number', userData.carNumber)
+        .eq('car_number', userData.carNumber.trim())
         .maybeSingle();
 
       if (checkError && checkError.code !== 'PGRST116') {
         console.error('Error checking existing profile:', checkError);
-        throw new Error('حدث خطأ في التحقق من البيانات');
+        throw new Error(`خطأ في التحقق من البيانات: ${checkError.message}`);
       }
 
       if (existingProfile) {
@@ -354,22 +413,34 @@ export const useAuth = () => {
       }
 
       // Create auth user with car number as email
-      const email = `${userData.carNumber.toLowerCase().replace(/[^a-z0-9]/g, '')}@ongaas.mr`;
+      const cleanCarNumber = userData.carNumber.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!cleanCarNumber) {
+        throw new Error('رقم السيارة غير صالح');
+      }
+      
+      const email = `${cleanCarNumber}@ongaas.mr`;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password: userData.password,
         options: {
           emailRedirectTo: undefined, // Disable email confirmation for preview
           data: {
-            full_name: userData.fullName,
-            car_number: userData.carNumber
+            full_name: userData.fullName.trim(),
+            car_number: userData.carNumber.trim()
           }
         }
       });
 
       if (error) {
         console.error('Auth signup error:', error);
-        throw new Error(error.message);
+        if (error.message.includes('User already registered')) {
+          throw new Error('هذا الحساب مسجل بالفعل');
+        } else if (error.message.includes('Password should be at least 6 characters')) {
+          throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+        } else {
+          throw new Error(`خطأ في إنشاء الحساب: ${error.message}`);
+        }
       }
 
       if (data.user) {
@@ -382,7 +453,7 @@ export const useAuth = () => {
         
         if (userData.profilePicture) {
           // In a real app, you would upload to Supabase Storage
-          profilePictureUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.fullName)}&background=3B82F6&color=fff&size=200`;
+          profilePictureUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.fullName.trim())}&background=3B82F6&color=fff&size=200`;
         }
         
         if (userData.driversLicense) {
@@ -394,9 +465,9 @@ export const useAuth = () => {
           .from('app_users')
           .insert({
             id: userId,
-            full_name: userData.fullName,
-            car_number: userData.carNumber,
-            phone_number: userData.phoneNumber,
+            full_name: userData.fullName.trim(),
+            car_number: userData.carNumber.trim(),
+            phone_number: userData.phoneNumber.trim(),
             profile_picture_url: profilePictureUrl,
             drivers_license_url: driversLicenseUrl,
             insurance_start_date: userData.insuranceStartDate,
@@ -409,6 +480,12 @@ export const useAuth = () => {
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
+          // Try to clean up the auth user if profile creation fails
+          try {
+            await supabase.auth.admin.deleteUser(userId);
+          } catch (cleanupError) {
+            console.error('Error cleaning up auth user:', cleanupError);
+          }
           throw new Error(`فشل في إنشاء الملف الشخصي: ${profileError.message}`);
         }
 

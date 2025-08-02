@@ -63,6 +63,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         }
         result = await signInAdmin(loginData.adminEmail, loginData.adminPassword);
       } else {
+        // التحقق من البيانات قبل الإرسال
+        if (!loginData.carNumber.trim()) {
+          throw new Error('يرجى إدخال رقم السيارة');
+        }
+        if (!loginData.password) {
+          throw new Error('يرجى إدخال كلمة المرور');
+        }
         result = await signInWithCarNumber(loginData.carNumber, loginData.password);
       }
       onClose();
@@ -76,7 +83,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         }, 100);
       }
     } catch (err: any) {
-      setError(err.message || 'حدث خطأ في تسجيل الدخول');
+      console.error('Login error:', err);
+      // عرض رسالة خطأ واضحة للمستخدم
+      if (err.message) {
+        setError(err.message);
+      } else {
+        setError('حدث خطأ غير متوقع في تسجيل الدخول');
+      }
     } finally {
       setLoading(false);
     }
@@ -87,6 +100,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     setLoading(true);
     setError('');
 
+    // التحقق من البيانات قبل الإرسال
+    if (!signupData.fullName.trim()) {
+      setError('يرجى إدخال الاسم الكامل');
+      setLoading(false);
+      return;
+    }
+    
+    if (!signupData.carNumber.trim()) {
+      setError('يرجى إدخال رقم السيارة');
+      setLoading(false);
+      return;
+    }
+    
+    if (!signupData.phoneNumber.trim()) {
+      setError('يرجى إدخال رقم الهاتف');
+      setLoading(false);
+      return;
+    }
     if (signupData.password !== signupData.confirmPassword) {
       setError('كلمات المرور غير متطابقة');
       setLoading(false);
@@ -116,7 +147,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       onClose();
     } catch (err: any) {
       console.error('Signup error:', err);
-      setError(err.message || 'حدث خطأ في إنشاء الحساب');
+      // عرض رسالة خطأ واضحة للمستخدم
+      if (err.message) {
+        setError(err.message);
+      } else {
+        setError('حدث خطأ غير متوقع في إنشاء الحساب');
+      }
     } finally {
       setLoading(false);
     }
