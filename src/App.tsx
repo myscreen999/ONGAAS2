@@ -15,7 +15,7 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showUserDashboard, setShowUserDashboard] = useState(false);
-  const { user, profile, loading, connectionError } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   const handleShowAuth = (mode?: 'signup') => {
     setShowAuthModal(true);
@@ -49,45 +49,7 @@ function App() {
     };
   }, []);
 
-  // Show connection error if exists
-  if (connectionError) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
-          <div className="text-red-500 text-6xl mb-6">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">خطأ في الاتصال</h1>
-          <p className="text-gray-600 mb-6">{connectionError}</p>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-right">
-            <h3 className="font-bold text-yellow-800 mb-2">تحقق من:</h3>
-            <ul className="text-sm text-yellow-700 space-y-1">
-              <li>• متغيرات البيئة في ملف .env</li>
-              <li>• VITE_SUPABASE_URL</li>
-              <li>• VITE_SUPABASE_ANON_KEY</li>
-              <li>• اتصال الإنترنت</li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <button 
-              onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              إعادة المحاولة
-            </button>
-            <button 
-              onClick={() => {
-                console.log('Environment variables:');
-                console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
-                console.log('VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing');
-              }}
-              className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors text-sm"
-            >
-              فحص متغيرات البيئة (Console)
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Show loading screen
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center" style={{minHeight: '100vh'}}>
